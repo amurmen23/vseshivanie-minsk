@@ -81,7 +81,7 @@ module.exports = async function handler(req, res) {
 
   const { error } = await resend.emails.send({
     from: "Белсотра Лендинг <onboarding@resend.dev>",
-    to:   "s.scale@rudolf.by",
+    to:   "bs.scale@rudolf.by",
     subject: "Новая заявка на взвешивание",
     html,
   });
