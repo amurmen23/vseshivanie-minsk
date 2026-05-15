@@ -7,6 +7,6 @@
     "build": "node scripts/build.mjs"
   },
   "dependencies": {
-    "resend": "^4.5.1"
+    "resend": "^3.2.0"
   }
 }
