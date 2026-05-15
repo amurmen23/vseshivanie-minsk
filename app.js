@@ -142,8 +142,8 @@
         email:          (fd.get("email")          || "").toString().trim(),
       };
 
-      if (!d.company || !d.phone || !d.weighingsCount) {
-        showMessage("Заполните компанию, телефон и количество взвешиваний.", true);
+      if (!d.company || !d.phone || !d.email || !d.carNumber || !d.cargoType || !d.weighingsCount) {
+        showMessage("Пожалуйста, заполните все обязательные поля.", true);
         return;
       }
 

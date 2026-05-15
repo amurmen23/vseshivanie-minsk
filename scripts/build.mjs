@@ -28,4 +28,11 @@ await fs.copyFile(path.join(root, "app.js"),     path.join(out, "app.js"));
 await copyDir(path.join(root, "landing", "images"), path.join(out, "landing", "images"));
 await copyDir(path.join(root, "landing", "docs"),   path.join(out, "landing", "docs"));
 
-console.log("Build: index.html + app.js + landing/images + landing/docs → docs/");
+// Copy PDFs to docs/ root so ./price_vesy.pdf links work
+const docsDir = path.join(root, "landing", "docs");
+const pdfFiles = (await fs.readdir(docsDir)).filter(f => f.endsWith(".pdf"));
+for (const pdf of pdfFiles) {
+  await fs.copyFile(path.join(docsDir, pdf), path.join(out, pdf));
+}
+
+console.log("Build: index.html + app.js + landing/images + landing/docs + PDFs → docs/");
