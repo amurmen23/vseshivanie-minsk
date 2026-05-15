@@ -5,5 +5,8 @@
   "description": "ООО «Белсотра» — лендинг (статическая выкладка через Vercel)",
   "scripts": {
     "build": "node scripts/build.mjs"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.14"
   }
 }

@@ -60,7 +60,7 @@
     messageEl.textContent = "";
   }
 
-  /* ── Submit button state ── */
+  /* ── Submit button loading state ── */
   var SPINNER =
     '<svg class="inline-block animate-spin mr-2" style="width:16px;height:16px;vertical-align:-3px" fill="none" viewBox="0 0 24 24">' +
     '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
@@ -73,59 +73,84 @@
     submitBtn.innerHTML = on ? SPINNER : "Отправить заявку";
   }
 
-  /* ── Telegram send ── */
-  function buildText(company, phone, email) {
-    return (
-      "<b>📋 Новая заявка — Белсотра</b>\n\n" +
-      "<b>Компания:</b> " + company + "\n" +
-      "<b>Телефон:</b> "  + phone   + "\n" +
-      "<b>Email:</b> "    + email
-    );
+  /* ── Telegram ── */
+  function buildTelegramText(company, phone, carNumber, email) {
+    var lines = [
+      "<b>📋 Новая заявка — Белсотра</b>",
+      "",
+      "<b>Компания:</b> " + company,
+      "<b>Телефон:</b> "  + phone,
+    ];
+    if (carNumber) lines.push("<b>Госномер / № авто:</b> " + carNumber);
+    if (email)     lines.push("<b>Email:</b> " + email);
+    return lines.join("\n");
   }
 
-  async function sendToTelegram(company, phone, email) {
+  async function sendToTelegram(company, phone, carNumber, email) {
     var res = await fetch(TG_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: TG_CHAT_ID,
-        text: buildText(company, phone, email),
+        text: buildTelegramText(company, phone, carNumber, email),
         parse_mode: "HTML",
         disable_web_page_preview: true,
       }),
     });
     if (!res.ok) throw new Error("Telegram " + res.status);
-    return res.json();
+  }
+
+  /* ── Email via Vercel serverless function ── */
+  async function sendToEmail(company, phone, carNumber, email) {
+    var res = await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company: company, phone: phone, carNumber: carNumber, email: email }),
+    });
+    if (!res.ok) {
+      var body = await res.json().catch(function () { return {}; });
+      throw new Error(body.error || "Email API " + res.status);
+    }
   }
 
   /* ── Form submit ── */
   if (form) {
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
-      var fd      = new FormData(form);
-      var company = (fd.get("company") || "").toString().trim();
-      var phone   = (fd.get("phone")   || "").toString().trim();
-      var email   = (fd.get("email")   || "").toString().trim();
+      var fd        = new FormData(form);
+      var company   = (fd.get("company")   || "").toString().trim();
+      var phone     = (fd.get("phone")     || "").toString().trim();
+      var carNumber = (fd.get("carNumber") || "").toString().trim();
+      var email     = (fd.get("email")     || "").toString().trim();
 
-      if (!company || !phone || !email) {
-        showMessage("Заполните все поля.", true);
+      if (!company || !phone) {
+        showMessage("Заполните название компании и телефон.", true);
         return;
       }
 
       setLoading(true);
       hideMessage();
 
-      try {
-        await sendToTelegram(company, phone, email);
-        showMessage("Заявка отправлена! Мы свяжемся с вами.", false);
-        form.reset();
-        setTimeout(closeModal, 2500);
-      } catch (err) {
-        console.error(err);
+      /* Send to Telegram first, then email (both non-blocking failures) */
+      var tgError    = null;
+      var emailError = null;
+
+      try { await sendToTelegram(company, phone, carNumber, email); }
+      catch (err) { tgError = err; console.warn("Telegram:", err); }
+
+      try { await sendToEmail(company, phone, carNumber, email); }
+      catch (err) { emailError = err; console.warn("Email:", err); }
+
+      setLoading(false);
+
+      if (tgError && emailError) {
         showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
-      } finally {
-        setLoading(false);
+        return;
       }
+
+      showMessage("Заявка отправлена! Мы свяжемся с вами.", false);
+      form.reset();
+      setTimeout(closeModal, 2500);
     });
   }
 })();
