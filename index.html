@@ -891,37 +891,11 @@
           <form id="order-form" novalidate>
 
             <!-- Notice + attachments -->
-            <div class="order-form-notice mb-6 space-y-4 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm leading-relaxed text-steel-300">
-              <p>
-                <strong class="text-accent">Важно:</strong> пожалуйста, прикрепите ваши реквизиты для
-                выставления счёта (можно в ответном письме после отправки заявки или приложить файл к
-                корпоративной почте).
-              </p>
-              <div class="order-form-attachments flex flex-col gap-3 border-t border-accent/15 pt-4">
-                <input
-                  type="file"
-                  id="order-file-input"
-                  class="sr-only"
-                  multiple
-                  tabindex="-1"
-                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,image/*,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                />
-                <button
-                  type="button"
-                  id="order-attach-btn"
-                  class="inline-flex w-full items-center justify-center gap-2 rounded-sm border border-steel-600/50 bg-navy-950/80 px-4 py-2.5 text-sm font-semibold uppercase tracking-wide text-steel-300 transition hover:border-accent/50 hover:text-white sm:w-auto sm:justify-start"
-                >
-                  <i data-lucide="paperclip" style="width:15px;height:15px;color:#22c55e"></i>
-                  Прикрепить файл
-                </button>
-                <p class="text-xs text-steel-600">PDF, изображения или Word. До 5 файлов, до 10 МБ каждый.</p>
-                <ul
-                  id="order-files-list"
-                  class="hidden list-none space-y-2 p-0 text-xs text-steel-300"
-                  aria-live="polite"
-                ></ul>
-              </div>
-            </div>
+            <p class="mb-6 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm leading-relaxed text-steel-300">
+              <strong class="text-accent">Важно:</strong> для выставления счёта пришлите реквизиты
+              в ответном сообщении или на почту
+              <a href="mailto:bs.scale@rudolf.by" class="text-accent hover:underline">bs.scale@rudolf.by</a>.
+            </p>
 
             <!-- Fields -->
             <div class="space-y-4">
