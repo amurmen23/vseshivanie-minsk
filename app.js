@@ -74,25 +74,25 @@
   }
 
   /* ── Telegram ── */
-  function buildTelegramText(company, phone, carNumber, email) {
+  function buildTelegramText(company, phone, carNumber, cargoType) {
     var lines = [
       "<b>📋 Новая заявка — Белсотра</b>",
       "",
       "<b>Компания:</b> " + company,
       "<b>Телефон:</b> "  + phone,
     ];
-    if (carNumber) lines.push("<b>Госномер / № авто:</b> " + carNumber);
-    if (email)     lines.push("<b>Email:</b> " + email);
+    if (carNumber)  lines.push("<b>Госномер / № авто:</b> " + carNumber);
+    if (cargoType)  lines.push("<b>Тип груза:</b> "         + cargoType);
     return lines.join("\n");
   }
 
-  async function sendToTelegram(company, phone, carNumber, email) {
+  async function sendToTelegram(company, phone, carNumber, cargoType) {
     var res = await fetch(TG_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: TG_CHAT_ID,
-        text: buildTelegramText(company, phone, carNumber, email),
+        text: buildTelegramText(company, phone, carNumber, cargoType),
         parse_mode: "HTML",
         disable_web_page_preview: true,
       }),
@@ -101,11 +101,16 @@
   }
 
   /* ── Email via Vercel serverless function ── */
-  async function sendToEmail(company, phone, carNumber, email) {
+  async function sendToEmail(company, phone, carNumber, cargoType) {
     var res = await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ company: company, phone: phone, carNumber: carNumber, email: email }),
+      body: JSON.stringify({
+        company:   company,
+        phone:     phone,
+        carNumber: carNumber,
+        cargoType: cargoType,
+      }),
     });
     if (!res.ok) {
       var body = await res.json().catch(function () { return {}; });
@@ -121,7 +126,7 @@
       var company   = (fd.get("company")   || "").toString().trim();
       var phone     = (fd.get("phone")     || "").toString().trim();
       var carNumber = (fd.get("carNumber") || "").toString().trim();
-      var email     = (fd.get("email")     || "").toString().trim();
+      var cargoType = (fd.get("cargoType") || "").toString().trim();
 
       if (!company || !phone) {
         showMessage("Заполните название компании и телефон.", true);
@@ -135,10 +140,10 @@
       var tgError    = null;
       var emailError = null;
 
-      try { await sendToTelegram(company, phone, carNumber, email); }
+      try { await sendToTelegram(company, phone, carNumber, cargoType); }
       catch (err) { tgError = err; console.warn("Telegram:", err); }
 
-      try { await sendToEmail(company, phone, carNumber, email); }
+      try { await sendToEmail(company, phone, carNumber, cargoType); }
       catch (err) { emailError = err; console.warn("Email:", err); }
 
       setLoading(false);
