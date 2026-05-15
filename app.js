@@ -190,6 +190,15 @@ const ATTACH_LIMITS = {
 
     if (!res.ok) {
       const t = await res.text();
+      const isFileError =
+        files.length > 0 &&
+        (res.status === 413 || res.status === 415 || res.status === 422 ||
+          /file|attach|multipart|too large/i.test(t));
+      if (isFileError) {
+        const err = new Error("FILE_NOT_ACCEPTED");
+        err.fileError = true;
+        throw err;
+      }
       throw new Error(t || "Ошибка отправки формы");
     }
     return res.json();
@@ -325,11 +334,18 @@ const ATTACH_LIMITS = {
       clearOrderAttachments();
       setTimeout(closeModal, 3200);
     } catch (err) {
-      console.error(err);
-      showMessage(
-        "Не удалось отправить через форму. Напишите на bs.scale@rudolf.by или позвоните +375 29 628-61-16.",
-        true,
-      );
+      if (err.fileError) {
+        showMessage(
+          "Пожалуйста, отправьте заявку без файла.",
+          true,
+        );
+      } else {
+        console.error(err);
+        showMessage(
+          "Не удалось отправить через форму. Напишите на bs.scale@rudolf.by или позвоните +375 29 628-61-16.",
+          true,
+        );
+      }
     } finally {
       submitBtn.disabled = false;
     }
