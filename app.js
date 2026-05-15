@@ -83,17 +83,17 @@
     submitBtn.innerHTML = on ? SPINNER : "Отправить заявку";
   }
 
-  /* ── Telegram (parse_mode HTML + escaped user data) ── */
+  /* ── Telegram (plain text — no parse_mode, safe for any company name) ── */
   function buildTelegramText(d) {
     var lines = [
-      "<b>\uD83D\uDCCB Новая заявка \u2014 Белсотра</b>", "",
-      "<b>Компания:</b> "           + esc(d.company),
-      "<b>Телефон:</b> "            + esc(d.phone),
+      "\uD83D\uDCCB Новая заявка \u2014 Белсотра", "",
+      "Компания: "           + d.company,
+      "Телефон: "            + d.phone,
+      "Email: "              + d.email,
     ];
-    if (d.weighingsCount) lines.push("<b>Кол-во взвешиваний:</b> " + esc(d.weighingsCount));
-    if (d.carNumber)      lines.push("<b>Госномер / № авто:</b> "  + esc(d.carNumber));
-    if (d.cargoType)      lines.push("<b>Тип груза:</b> "          + esc(d.cargoType));
-    if (d.email)          lines.push("<b>Email:</b> "              + esc(d.email));
+    if (d.carNumber)      lines.push("Госномер / № авто: "  + d.carNumber);
+    if (d.cargoType)      lines.push("Тип груза: "          + d.cargoType);
+    if (d.weighingsCount) lines.push("Кол-во взвешиваний: " + d.weighingsCount);
     return lines.join("\n");
   }
 
@@ -102,9 +102,8 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        chat_id:                 TG_CHAT_ID,
-        text:                    buildTelegramText(d),
-        parse_mode:              "HTML",
+        chat_id:                  TG_CHAT_ID,
+        text:                     buildTelegramText(d),
         disable_web_page_preview: true,
       }),
     }).then(function (res) {
