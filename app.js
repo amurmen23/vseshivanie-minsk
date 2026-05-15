@@ -11,6 +11,15 @@
 
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  /* ── HTML-escape: prevents Telegram 400 from special chars in user input ── */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   /* ── Modal ── */
   function openModal() {
     if (!modal) return;
@@ -18,7 +27,7 @@
     modal.classList.add("flex");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-    var first = modal.querySelector('input[type="text"]');
+    var first = modal.querySelector("input, select");
     if (first) first.focus();
   }
 
@@ -62,10 +71,11 @@
 
   /* ── Button state ── */
   var SPINNER =
-    '<svg class="inline-block animate-spin mr-2" style="width:16px;height:16px;vertical-align:-3px" fill="none" viewBox="0 0 24 24">' +
+    '<svg class="inline-block animate-spin mr-2" style="width:16px;height:16px;vertical-align:-3px"' +
+    ' fill="none" viewBox="0 0 24 24">' +
     '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
     '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>' +
-    "Отправка…";
+    "Отправка\u2026";
 
   function setLoading(on) {
     if (!submitBtn) return;
@@ -73,15 +83,17 @@
     submitBtn.innerHTML = on ? SPINNER : "Отправить заявку";
   }
 
-  /* ── Telegram ── */
+  /* ── Telegram (parse_mode HTML + escaped user data) ── */
   function buildTelegramText(d) {
-    var lines = ["<b>📋 Новая заявка — Белсотра</b>", "",
-      "<b>Компания:</b> " + d.company,
-      "<b>Телефон:</b> "  + d.phone,
+    var lines = [
+      "<b>\uD83D\uDCCB Новая заявка \u2014 Белсотра</b>", "",
+      "<b>Компания:</b> "           + esc(d.company),
+      "<b>Телефон:</b> "            + esc(d.phone),
     ];
-    if (d.carNumber) lines.push("<b>Госномер / № авто:</b> " + d.carNumber);
-    if (d.cargoType) lines.push("<b>Тип груза:</b> "         + d.cargoType);
-    if (d.email)     lines.push("<b>Email:</b> "             + d.email);
+    if (d.weighingsCount) lines.push("<b>Кол-во взвешиваний:</b> " + esc(d.weighingsCount));
+    if (d.carNumber)      lines.push("<b>Госномер / № авто:</b> "  + esc(d.carNumber));
+    if (d.cargoType)      lines.push("<b>Тип груза:</b> "          + esc(d.cargoType));
+    if (d.email)          lines.push("<b>Email:</b> "              + esc(d.email));
     return lines.join("\n");
   }
 
@@ -90,25 +102,28 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        chat_id: TG_CHAT_ID,
-        text: buildTelegramText(d),
-        parse_mode: "HTML",
+        chat_id:                 TG_CHAT_ID,
+        text:                    buildTelegramText(d),
+        parse_mode:              "HTML",
         disable_web_page_preview: true,
       }),
     }).then(function (res) {
-      if (!res.ok) throw new Error("Telegram " + res.status);
+      if (!res.ok) return res.text().then(function (t) {
+        throw new Error("Telegram " + res.status + ": " + t.slice(0, 120));
+      });
     });
   }
 
   /* ── Email via /api/send-email ── */
   function sendToEmail(d) {
     return fetch("/api/send-email", {
-      method: "POST",
+      method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(d),
+      body:    JSON.stringify(d),
     }).then(function (res) {
-      if (!res.ok) return res.json().catch(function () { return {}; })
-          .then(function (b) { throw new Error(b.error || "Email API " + res.status); });
+      if (!res.ok) return res.json()
+        .catch(function () { return {}; })
+        .then(function (b) { throw new Error(b.error || "Email API " + res.status); });
     });
   }
 
@@ -119,41 +134,49 @@
 
       var fd = new FormData(form);
       var d  = {
-        company:   (fd.get("company")   || "").toString().trim(),
-        phone:     (fd.get("phone")     || "").toString().trim(),
-        carNumber: (fd.get("carNumber") || "").toString().trim(),
-        cargoType: (fd.get("cargoType") || "").toString().trim(),
-        email:     (fd.get("email")     || "").toString().trim(),
+        company:        (fd.get("company")        || "").toString().trim(),
+        phone:          (fd.get("phone")          || "").toString().trim(),
+        weighingsCount: (fd.get("weighingsCount") || "").toString().trim(),
+        carNumber:      (fd.get("carNumber")      || "").toString().trim(),
+        cargoType:      (fd.get("cargoType")      || "").toString().trim(),
+        email:          (fd.get("email")          || "").toString().trim(),
       };
 
-      if (!d.company || !d.phone) {
-        showMessage("Заполните название компании и телефон.", true);
+      if (!d.company || !d.phone || !d.weighingsCount) {
+        showMessage("Заполните компанию, телефон и количество взвешиваний.", true);
         return;
       }
 
-      /* Block button immediately — before any async work */
+      /* Block button immediately — synchronous, before any async work */
       setLoading(true);
       hideMessage();
 
-      /* Fire both requests in parallel */
+      /* Fire both requests in parallel; allSettled never throws */
       Promise.allSettled([
         sendToTelegram(d),
         sendToEmail(d),
-      ]).then(function (results) {
-        var allFailed = results.every(function (r) { return r.status === "rejected"; });
+      ])
+        .then(function (results) {
+          var allFailed = results.every(function (r) { return r.status === "rejected"; });
 
-        setLoading(false);
+          setLoading(false);
 
-        if (allFailed) {
-          results.forEach(function (r) { if (r.reason) console.warn(r.reason); });
+          if (allFailed) {
+            results.forEach(function (r) { if (r.reason) console.warn(r.reason); });
+            showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
+            return;
+          }
+
+          showMessage("Заявка отправлена! Мы свяжемся с вами.", false);
+          form.reset();
+          setTimeout(closeModal, 2500);
+        })
+        .catch(function (err) {
+          /* Safety net — should never be reached with allSettled */
+          console.error("Unexpected error:", err);
+          setLoading(false);
           showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
-          return;
-        }
-
-        showMessage("Заявка отправлена! Мы свяжемся с вами.", false);
-        form.reset();
-        setTimeout(closeModal, 2500);
-      });
+        });
     });
   }
 })();
