@@ -1,0 +1,9 @@
+{
+  "name": "belsotra-project",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ООО «Белсотра» — лендинг (статическая выкладка через Vercel)",
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  }
+}
