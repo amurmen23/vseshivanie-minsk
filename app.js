@@ -11,7 +11,7 @@
 
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  /* ── Modal open / close ── */
+  /* ── Modal ── */
   function openModal() {
     if (!modal) return;
     modal.classList.remove("hidden");
@@ -60,7 +60,7 @@
     messageEl.textContent = "";
   }
 
-  /* ── Submit button loading state ── */
+  /* ── Button state ── */
   var SPINNER =
     '<svg class="inline-block animate-spin mr-2" style="width:16px;height:16px;vertical-align:-3px" fill="none" viewBox="0 0 24 24">' +
     '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
@@ -74,88 +74,86 @@
   }
 
   /* ── Telegram ── */
-  function buildTelegramText(company, phone, carNumber, cargoType) {
-    var lines = [
-      "<b>📋 Новая заявка — Белсотра</b>",
-      "",
-      "<b>Компания:</b> " + company,
-      "<b>Телефон:</b> "  + phone,
+  function buildTelegramText(d) {
+    var lines = ["<b>📋 Новая заявка — Белсотра</b>", "",
+      "<b>Компания:</b> " + d.company,
+      "<b>Телефон:</b> "  + d.phone,
     ];
-    if (carNumber)  lines.push("<b>Госномер / № авто:</b> " + carNumber);
-    if (cargoType)  lines.push("<b>Тип груза:</b> "         + cargoType);
+    if (d.carNumber) lines.push("<b>Госномер / № авто:</b> " + d.carNumber);
+    if (d.cargoType) lines.push("<b>Тип груза:</b> "         + d.cargoType);
+    if (d.email)     lines.push("<b>Email:</b> "             + d.email);
     return lines.join("\n");
   }
 
-  async function sendToTelegram(company, phone, carNumber, cargoType) {
-    var res = await fetch(TG_URL, {
+  function sendToTelegram(d) {
+    return fetch(TG_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: TG_CHAT_ID,
-        text: buildTelegramText(company, phone, carNumber, cargoType),
+        text: buildTelegramText(d),
         parse_mode: "HTML",
         disable_web_page_preview: true,
       }),
+    }).then(function (res) {
+      if (!res.ok) throw new Error("Telegram " + res.status);
     });
-    if (!res.ok) throw new Error("Telegram " + res.status);
   }
 
-  /* ── Email via Vercel serverless function ── */
-  async function sendToEmail(company, phone, carNumber, cargoType) {
-    var res = await fetch("/api/send-email", {
+  /* ── Email via /api/send-email ── */
+  function sendToEmail(d) {
+    return fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        company:   company,
-        phone:     phone,
-        carNumber: carNumber,
-        cargoType: cargoType,
-      }),
+      body: JSON.stringify(d),
+    }).then(function (res) {
+      if (!res.ok) return res.json().catch(function () { return {}; })
+          .then(function (b) { throw new Error(b.error || "Email API " + res.status); });
     });
-    if (!res.ok) {
-      var body = await res.json().catch(function () { return {}; });
-      throw new Error(body.error || "Email API " + res.status);
-    }
   }
 
   /* ── Form submit ── */
   if (form) {
-    form.addEventListener("submit", async function (e) {
+    form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var fd        = new FormData(form);
-      var company   = (fd.get("company")   || "").toString().trim();
-      var phone     = (fd.get("phone")     || "").toString().trim();
-      var carNumber = (fd.get("carNumber") || "").toString().trim();
-      var cargoType = (fd.get("cargoType") || "").toString().trim();
 
-      if (!company || !phone) {
+      var fd = new FormData(form);
+      var d  = {
+        company:   (fd.get("company")   || "").toString().trim(),
+        phone:     (fd.get("phone")     || "").toString().trim(),
+        carNumber: (fd.get("carNumber") || "").toString().trim(),
+        cargoType: (fd.get("cargoType") || "").toString().trim(),
+        email:     (fd.get("email")     || "").toString().trim(),
+      };
+
+      if (!d.company || !d.phone) {
         showMessage("Заполните название компании и телефон.", true);
         return;
       }
 
+      /* Block button immediately — before any async work */
       setLoading(true);
       hideMessage();
 
-      /* Send to Telegram first, then email (both non-blocking failures) */
-      var tgError    = null;
-      var emailError = null;
+      /* Fire both requests in parallel */
+      Promise.allSettled([
+        sendToTelegram(d),
+        sendToEmail(d),
+      ]).then(function (results) {
+        var allFailed = results.every(function (r) { return r.status === "rejected"; });
 
-      try { await sendToTelegram(company, phone, carNumber, cargoType); }
-      catch (err) { tgError = err; console.warn("Telegram:", err); }
+        setLoading(false);
 
-      try { await sendToEmail(company, phone, carNumber, cargoType); }
-      catch (err) { emailError = err; console.warn("Email:", err); }
+        if (allFailed) {
+          results.forEach(function (r) { if (r.reason) console.warn(r.reason); });
+          showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
+          return;
+        }
 
-      setLoading(false);
-
-      if (tgError && emailError) {
-        showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
-        return;
-      }
-
-      showMessage("Заявка отправлена! Мы свяжемся с вами.", false);
-      form.reset();
-      setTimeout(closeModal, 2500);
+        showMessage("Заявка отправлена! Мы свяжемся с вами.", false);
+        form.reset();
+        setTimeout(closeModal, 2500);
+      });
     });
   }
 })();
