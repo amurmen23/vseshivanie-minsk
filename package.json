@@ -7,6 +7,6 @@
     "build": "node scripts/build.mjs"
   },
   "dependencies": {
-    "nodemailer": "^6.9.14"
+    "resend": "^4.5.1"
   }
 }
