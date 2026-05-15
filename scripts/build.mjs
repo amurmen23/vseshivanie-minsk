@@ -4,8 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
-const landing = path.join(root, "landing");
-const docs = path.join(root, "docs");
+const out  = path.join(root, "docs");
 
 async function copyDir(src, dest) {
   await fs.mkdir(dest, { recursive: true });
@@ -18,6 +17,15 @@ async function copyDir(src, dest) {
   }
 }
 
-await fs.rm(docs, { recursive: true, force: true });
-await copyDir(landing, docs);
-console.log("Build: landing/ → docs/");
+await fs.rm(out, { recursive: true, force: true });
+await fs.mkdir(out, { recursive: true });
+
+// Root files
+await fs.copyFile(path.join(root, "index.html"), path.join(out, "index.html"));
+await fs.copyFile(path.join(root, "app.js"),     path.join(out, "app.js"));
+
+// Assets from landing/
+await copyDir(path.join(root, "landing", "images"), path.join(out, "landing", "images"));
+await copyDir(path.join(root, "landing", "docs"),   path.join(out, "landing", "docs"));
+
+console.log("Build: index.html + app.js + landing/images + landing/docs → docs/");
