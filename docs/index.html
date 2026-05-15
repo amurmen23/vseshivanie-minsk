@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Белсотра — уполномоченная станция взвешивания МСВТС в Минске. Поосное взвешивание в движении на весах М8200Д. 365 дней, 08:00–20:00."
+    />
+    <title>Белсотра — Станция взвешивания МСВТС | Минск</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Oswald:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                950: "#030b15",
+                900: "#060f1e",
+                800: "#0a1628",
+                700: "#0f1f3a",
+                600: "#152a4a",
+              },
+              steel: {
+                300: "#cbd5e1",
+                400: "#94a3b8",
+                500: "#64748b",
+                600: "#475569",
+                700: "#334155",
+              },
+              accent: {
+                DEFAULT: "#22c55e",
+                hover: "#16a34a",
+                light: "#4ade80",
+              },
+            },
+            fontFamily: {
+              display: ["Oswald", "system-ui", "sans-serif"],
+              sans: ['"IBM Plex Sans"', "system-ui", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <style>
+      /* ─── Reset / base ─── */
+      html { scroll-behavior: smooth; }
+      ::-webkit-scrollbar { width: 5px; }
+      ::-webkit-scrollbar-track { background: #030b15; }
+      ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+      ::selection { background: rgba(34,197,94,.25); color:#fff; }
+
+      /* ─── Lucide icon inline reset ─── */
+      [data-lucide] { display: inline-block; vertical-align: middle; }
+
+      /* ─── Hero overlay gradient ─── */
+      .hero-overlay {
+        background: linear-gradient(
+          100deg,
+          rgba(3,11,21,0.92) 0%,
+          rgba(3,11,21,0.70) 30%,
+          rgba(3,11,21,0.30) 60%,
+          rgba(3,11,21,0.05) 100%
+        );
+      }
+
+      /* ─── Photo filters ─── */
+      .photo-cinematic {
+        filter: brightness(0.8) contrast(1.2) saturate(0.9);
+        transition: filter .35s ease, transform .45s ease;
+      }
+      .gallery-item:hover .photo-cinematic {
+        filter: brightness(0.88) contrast(1.1) saturate(1);
+        transform: scale(1.04);
+      }
+
+      /* ─── Ticker ─── */
+      .ticker-track {
+        display: inline-flex;
+        white-space: nowrap;
+        animation: ticker 38s linear infinite;
+      }
+      @keyframes ticker {
+        from { transform: translateX(0); }
+        to   { transform: translateX(-50%); }
+      }
+
+      /* ─── Glow button ─── */
+      .btn-glow {
+        box-shadow: 0 0 22px -4px rgba(34,197,94,.45);
+        transition: background .2s ease, box-shadow .2s ease;
+      }
+      .btn-glow:hover {
+        box-shadow: 0 0 34px -4px rgba(34,197,94,.65);
+      }
+
+      /* ─── Bento card hover ─── */
+      .bento-card {
+        transition: border-color .2s ease, box-shadow .2s ease;
+      }
+      .bento-card:hover {
+        border-color: rgba(34,197,94,.22);
+        box-shadow: 0 0 32px -10px rgba(34,197,94,.15);
+      }
+
+      /* ─── PDF card hover ─── */
+      .doc-card { transition: border-color .2s, background .2s; }
+      .doc-card:hover { border-color: rgba(34,197,94,.3); }
+
+      /* ─── Modal scroll ─── */
+      .modal-scroll { max-height: calc(100vh - 7rem); overflow-y: auto; }
+      .modal-scroll::-webkit-scrollbar { width: 4px; }
+      .modal-scroll::-webkit-scrollbar-thumb { background: #334155; }
+
+      /* ─── Subtle grid texture ─── */
+      .grid-texture {
+        background-image:
+          linear-gradient(to right,  rgba(148,163,184,.04) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(148,163,184,.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+
+      /* ─── Stat border left ─── */
+      .stat-item { border-left: 2px solid; }
+      .stat-item-accent { border-color: #22c55e; }
+      .stat-item-muted  { border-color: rgba(255,255,255,.15); }
+    </style>
+  </head>
+
+  <body class="bg-navy-950 text-slate-100 font-sans antialiased">
+
+    <!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+    <header class="fixed inset-x-0 top-0 z-40 border-b border-white/5 bg-navy-950/80 backdrop-blur-xl">
+      <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+
+        <a href="#" class="flex items-center gap-3">
+          <img
+            src="images/logo.jpg"
+            alt="Rudolf Riegler III — Белсотра"
+            class="h-10 w-auto object-contain rounded"
+            style="max-width:40px"
+          />
+          <div class="leading-tight">
+            <p class="font-display text-base font-semibold tracking-wide text-white sm:text-[17px]">ООО «Белсотра»</p>
+            <p class="text-[10px] uppercase tracking-widest text-steel-600">МСВТС · Станция взвешивания</p>
+          </div>
+        </a>
+
+        <nav class="hidden items-center gap-6 xl:flex">
+          <a href="#advantages" class="text-[11px] font-medium uppercase tracking-wider text-steel-500 transition hover:text-white">Преимущества</a>
+          <a href="#equipment"  class="text-[11px] font-medium uppercase tracking-wider text-steel-500 transition hover:text-white">Оборудование</a>
+          <a href="#pricing"    class="text-[11px] font-medium uppercase tracking-wider text-steel-500 transition hover:text-white">Цены</a>
+          <a href="#docs"       class="text-[11px] font-medium uppercase tracking-wider text-steel-500 transition hover:text-white">Документы</a>
+          <a href="#contacts"   class="text-[11px] font-medium uppercase tracking-wider text-steel-500 transition hover:text-white">Контакты</a>
+        </nav>
+
+        <button
+          type="button"
+          data-open-modal
+          class="btn-glow shrink-0 rounded-sm bg-accent px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-accent-hover sm:px-5 sm:text-sm"
+        >Заказать взвешивание</button>
+      </div>
+
+      <!-- Mobile nav strip -->
+      <nav class="flex items-center justify-center gap-5 border-t border-white/5 px-4 py-2 xl:hidden">
+        <a href="#advantages" class="text-[10px] uppercase tracking-widest text-steel-600 hover:text-white">Плюсы</a>
+        <a href="#equipment"  class="text-[10px] uppercase tracking-widest text-steel-600 hover:text-white">Техника</a>
+        <a href="#pricing"    class="text-[10px] uppercase tracking-widest text-steel-600 hover:text-white">Цены</a>
+        <a href="#docs"       class="text-[10px] uppercase tracking-widest text-steel-600 hover:text-white">Документы</a>
+        <a href="#contacts"   class="text-[10px] uppercase tracking-widest text-steel-600 hover:text-white">Контакты</a>
+      </nav>
+    </header>
+
+    <main>
+
+      <!-- ═════════════════════════════ HERO ════════════════════════════════ -->
+      <section class="relative flex min-h-screen items-center overflow-hidden border-b border-white/5 pt-28 pb-16 md:pt-0 md:pb-0">
+
+        <!-- Background photo -->
+        <div class="absolute inset-0">
+          <img
+            src="images/vesy1.png"
+            alt="Весовая платформа Белсотра"
+            class="h-full w-full object-cover"
+            style="filter:brightness(0.80) contrast(1.10) saturate(0.95)"
+          />
+          <div class="hero-overlay absolute inset-0"></div>
+          <div class="absolute inset-0 grid-texture opacity-60"></div>
+        </div>
+
+        <!-- Glow orbs -->
+        <div class="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-accent/5 blur-[140px]" aria-hidden="true"></div>
+
+        <!-- Content -->
+        <div class="relative mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div class="max-w-3xl">
+
+            <!-- Badge -->
+            <div class="mb-7 inline-flex items-center gap-2.5 rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5">
+              <span class="h-2 w-2 animate-pulse rounded-full bg-accent"></span>
+              <span class="text-[11px] font-bold uppercase tracking-widest text-accent">МСВТС · Зелёный коридор · СНГ</span>
+            </div>
+
+            <!-- H1 -->
+            <h1 class="font-display text-5xl font-bold uppercase leading-[1.06] tracking-tight text-white sm:text-6xl lg:text-[5.5rem]">
+              Проходи весогабаритный<br />
+              контроль <span class="text-accent">без очередей</span>
+            </h1>
+
+            <p class="mt-6 max-w-xl text-base leading-relaxed text-steel-300 sm:text-lg">
+              Уполномоченная станция выдачи <strong class="text-white font-semibold">МСВТС</strong> — международных сертификатов для стран СНГ.
+              Поосное взвешивание в движении на весах <strong class="text-white font-semibold">М8200Д</strong> — без остановки состава.
+            </p>
+
+            <!-- CTA group -->
+            <div class="mt-10 flex flex-wrap gap-4">
+              <button
+                type="button"
+                data-open-modal
+                class="btn-glow inline-flex items-center gap-2.5 rounded-sm bg-accent px-8 py-4 text-sm font-bold uppercase tracking-widest text-white hover:bg-accent-hover"
+              >
+                <i data-lucide="truck" style="width:18px;height:18px"></i>
+                Заказать взвешивание
+              </button>
+              <a
+                href="#pricing"
+                class="inline-flex items-center gap-2 border border-white/20 px-6 py-4 text-sm font-semibold uppercase tracking-wide text-steel-300 transition hover:border-white/40 hover:text-white"
+              >
+                Узнать цены
+                <i data-lucide="arrow-right" style="width:15px;height:15px"></i>
+              </a>
+            </div>
+
+            <!-- Stats strip -->
+            <div class="mt-14 grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4">
+              <div class="stat-item stat-item-accent pl-4">
+                <p class="font-display text-3xl font-bold text-white">120 т</p>
+                <p class="mt-0.5 text-[10px] uppercase tracking-widest text-steel-500">Макс. масса</p>
+              </div>
+              <div class="stat-item stat-item-muted pl-4">
+                <p class="font-display text-3xl font-bold text-white">Класс 2</p>
+                <p class="mt-0.5 text-[10px] uppercase tracking-widest text-steel-500">Точность</p>
+              </div>
+              <div class="stat-item stat-item-muted pl-4">
+                <p class="font-display text-3xl font-bold text-white">365</p>
+                <p class="mt-0.5 text-[10px] uppercase tracking-widest text-steel-500">Дней в году</p>
+              </div>
+              <div class="stat-item stat-item-muted pl-4">
+                <p class="font-display text-3xl font-bold text-white">±1%</p>
+                <p class="mt-0.5 text-[10px] uppercase tracking-widest text-steel-500">Погрешность</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════ TICKER ════════════════════════════════ -->
+      <div class="overflow-hidden border-y border-white/5 bg-navy-900/50 py-3">
+        <div class="ticker-track gap-0">
+          <!-- Segment × 2 for seamless loop -->
+          <span class="inline-flex items-center gap-6 px-6 text-[11px] font-semibold uppercase tracking-widest text-steel-600">
+            <span>МСВТС</span><span class="text-accent/60">·</span>
+            <span>Поосное взвешивание</span><span class="text-accent/60">·</span>
+            <span>М8200Д</span><span class="text-accent/60">·</span>
+            <span>Без очередей</span><span class="text-accent/60">·</span>
+            <span>365 дней</span><span class="text-accent/60">·</span>
+            <span>Транзит СНГ</span><span class="text-accent/60">·</span>
+            <span>Минск</span><span class="text-accent/60">·</span>
+            <span>ООО Белсотра</span><span class="text-accent/60">·</span>
+            <span>Взвешивание в движении</span><span class="text-accent/60">·</span>
+            <span>До 30 км/ч</span><span class="text-accent/60">·</span>
+          </span>
+          <span class="inline-flex items-center gap-6 px-6 text-[11px] font-semibold uppercase tracking-widest text-steel-600" aria-hidden="true">
+            <span>МСВТС</span><span class="text-accent/60">·</span>
+            <span>Поосное взвешивание</span><span class="text-accent/60">·</span>
+            <span>М8200Д</span><span class="text-accent/60">·</span>
+            <span>Без очередей</span><span class="text-accent/60">·</span>
+            <span>365 дней</span><span class="text-accent/60">·</span>
+            <span>Транзит СНГ</span><span class="text-accent/60">·</span>
+            <span>Минск</span><span class="text-accent/60">·</span>
+            <span>ООО Белсотра</span><span class="text-accent/60">·</span>
+            <span>Взвешивание в движении</span><span class="text-accent/60">·</span>
+            <span>До 30 км/ч</span><span class="text-accent/60">·</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════ ADVANTAGES ════════════════════════════════ -->
+      <section
+        id="advantages"
+        class="scroll-mt-28 border-b border-white/5 py-20 lg:py-28"
+      >
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="mb-14 max-w-2xl">
+            <p class="mb-3 text-[11px] font-bold uppercase tracking-widest text-accent">Ключевые преимущества</p>
+            <h2 class="font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl">Почему выбирают нас</h2>
+          </div>
+
+          <div class="grid gap-6 md:grid-cols-3">
+
+            <!-- Card 1 — highlighted МСВТС -->
+            <article class="relative overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-navy-800 via-navy-900 to-navy-950 p-8 shadow-[0_0_50px_-16px_rgba(34,197,94,.3)]">
+              <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-xl border border-accent/30 bg-accent/10">
+                <i data-lucide="file-badge-2" style="width:26px;height:26px;color:#22c55e"></i>
+              </div>
+              <h3 class="font-display text-2xl font-bold uppercase tracking-wide text-white">Выдаём МСВТС</h3>
+              <p class="mt-3 text-sm leading-relaxed text-steel-400">
+                Официально уполномоченная станция. Международный сертификат взвешивания принимается на всех КПП стран СНГ — повторное взвешивание не требуется.
+              </p>
+              <div class="mt-7 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-accent">
+                <i data-lucide="check-circle-2" style="width:14px;height:14px"></i>
+                Признан на всех границах СНГ
+              </div>
+            </article>
+
+            <!-- Card 2 -->
+            <article class="rounded-2xl border border-white/8 bg-navy-900/60 p-8 transition hover:border-white/15">
+              <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <i data-lucide="gauge" style="width:26px;height:26px;color:#94a3b8"></i>
+              </div>
+              <h3 class="font-display text-2xl font-bold uppercase tracking-wide text-white">В движении</h3>
+              <p class="mt-3 text-sm leading-relaxed text-steel-400">
+                Весы <strong class="text-white">М8200Д</strong>: поосное взвешивание без остановки состава. Скорость проезда — до 30 км/ч. Ни одной лишней минуты в ожидании.
+              </p>
+              <div class="mt-7 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-steel-500">
+                <i data-lucide="zap" style="width:14px;height:14px"></i>
+                До 30 км/ч без остановки
+              </div>
+            </article>
+
+            <!-- Card 3 -->
+            <article class="rounded-2xl border border-white/8 bg-navy-900/60 p-8 transition hover:border-white/15">
+              <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <i data-lucide="calendar-check-2" style="width:26px;height:26px;color:#94a3b8"></i>
+              </div>
+              <h3 class="font-display text-2xl font-bold uppercase tracking-wide text-white">365 дней</h3>
+              <p class="mt-3 text-sm leading-relaxed text-steel-400">
+                Работаем без выходных и праздников. Режим — <strong class="text-white">08:00–20:00</strong> ежедневно. Подстраиваемся под логистику, а не наоборот.
+              </p>
+              <div class="mt-7 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-steel-500">
+                <i data-lucide="clock" style="width:14px;height:14px"></i>
+                08:00 – 20:00 · Без исключений
+              </div>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════ BENTO GRID / EQUIPMENT ════════════════════ -->
+      <section
+        id="equipment"
+        class="scroll-mt-28 border-b border-white/5 bg-navy-900/25 py-20 lg:py-28"
+      >
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="mb-14 max-w-2xl">
+            <p class="mb-3 text-[11px] font-bold uppercase tracking-widest text-accent">Технические характеристики</p>
+            <h2 class="font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl">Оборудование</h2>
+          </div>
+
+          <!-- Bento grid: 3 cols × 2 rows -->
+          <div class="grid gap-4 lg:grid-cols-3">
+
+            <!-- Row 1: big card (2 cols) + range card -->
+            <div
+              class="bento-card relative col-span-1 min-h-72 overflow-hidden rounded-2xl border border-white/8 lg:col-span-2"
+              style="background-image:url('images/vesy2.png');background-size:cover;background-position:center"
+            >
+              <div class="absolute inset-0 bg-gradient-to-t from-navy-950/96 via-navy-950/60 to-transparent"></div>
+              <div class="relative flex h-full flex-col justify-end p-8">
+                <span class="mb-2 text-[11px] font-bold uppercase tracking-widest text-accent">Модель</span>
+                <h3 class="font-display text-4xl font-bold uppercase text-white sm:text-5xl">Весы М8200Д</h3>
+                <p class="mt-2 max-w-sm text-sm leading-relaxed text-steel-400">
+                  Автомобильные весы для поосного взвешивания грузовых ТС и автопоездов в движении. Применяются при выдаче МСВТС.
+                </p>
+              </div>
+            </div>
+
+            <!-- Range -->
+            <div class="bento-card rounded-2xl border border-white/8 bg-navy-900/70 p-7">
+              <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-accent/25 bg-accent/10">
+                <i data-lucide="weight" style="width:22px;height:22px;color:#22c55e"></i>
+              </div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-steel-500">Диапазон измерений</p>
+              <p class="mt-2 font-display text-4xl font-bold text-white">2–120 т</p>
+              <p class="mt-1 text-xs text-steel-600">2 000 – 120 000 кг</p>
+            </div>
+
+            <!-- Row 2: 3 equal cards -->
+            <div class="bento-card rounded-2xl border border-white/8 bg-navy-900/70 p-7">
+              <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <i data-lucide="layers-3" style="width:22px;height:22px;color:#94a3b8"></i>
+              </div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-steel-500">Метод</p>
+              <p class="mt-2 font-display text-xl font-bold text-white">Поосное взвешивание</p>
+              <p class="mt-2 text-xs leading-relaxed text-steel-600">
+                Каждая ось измеряется отдельно — итог: полная масса автопоезда с разбивкой по осям.
+              </p>
+            </div>
+
+            <div class="bento-card rounded-2xl border border-white/8 bg-navy-900/70 p-7">
+              <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <i data-lucide="shield-check" style="width:22px;height:22px;color:#94a3b8"></i>
+              </div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-steel-500">Класс точности</p>
+              <p class="mt-2 font-display text-6xl font-bold leading-none text-white">2</p>
+              <p class="mt-2 text-xs leading-relaxed text-steel-600">
+                ±1,0 % при скорости до 5 км/ч<br />±2,5 % при скорости до 30 км/ч
+              </p>
+            </div>
+
+            <div class="bento-card rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/10 via-navy-900 to-navy-950 p-7">
+              <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-accent/25 bg-accent/10">
+                <i data-lucide="activity" style="width:22px;height:22px;color:#22c55e"></i>
+              </div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-steel-500">В движении</p>
+              <p class="mt-2 font-display text-xl font-bold text-white">До 30 км/ч</p>
+              <p class="mt-2 text-xs leading-relaxed text-steel-600">
+                Автопоезд не останавливается. Весовой контроль — без потери времени.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ═════════════════════════ GALLERY ═════════════════════════════════ -->
+      <section class="border-b border-white/5 py-20 lg:py-28">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="mb-14">
+            <p class="mb-3 text-[11px] font-bold uppercase tracking-widest text-accent">Фотогалерея</p>
+            <h2 class="font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl">Станция в работе</h2>
+          </div>
+
+          <!-- 3 cols grid with mixed aspect ratios -->
+          <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+
+            <div class="gallery-item col-span-2 overflow-hidden rounded-2xl md:col-span-2" style="aspect-ratio:16/7">
+              <img src="images/vesy1.png" alt="Общий вид весовой площадки" class="photo-cinematic h-full w-full object-cover" />
+            </div>
+
+            <div class="gallery-item overflow-hidden rounded-2xl" style="aspect-ratio:4/3">
+              <img src="images/vesy6.png" alt="Здание и въезд на станцию" class="photo-cinematic h-full w-full object-cover" />
+            </div>
+
+            <div class="gallery-item overflow-hidden rounded-2xl" style="aspect-ratio:4/3">
+              <img src="images/vesy2.png" alt="Разметка СТОП на платформе" class="photo-cinematic h-full w-full object-cover" />
+            </div>
+
+            <div class="gallery-item overflow-hidden rounded-2xl" style="aspect-ratio:4/3">
+              <img src="images/vesy4.png" alt="Весовой коридор, вид сбоку" class="photo-cinematic h-full w-full object-cover" />
+            </div>
+
+            <div class="gallery-item overflow-hidden rounded-2xl" style="aspect-ratio:4/3">
+              <img src="images/vesy3.png" alt="Грузовик Rudolf на взвешивании" class="photo-cinematic h-full w-full object-cover" />
+            </div>
+
+            <div class="gallery-item col-span-2 overflow-hidden rounded-2xl" style="aspect-ratio:16/7">
+              <img src="images/vesy5.png" alt="Вид сверху на весовой коридор" class="photo-cinematic h-full w-full object-cover" />
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════ PRICING ═══════════════════════════════ -->
+      <section
+        id="pricing"
+        class="scroll-mt-28 border-b border-white/5 bg-navy-900/25 py-20 lg:py-28"
+      >
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="mb-14 max-w-2xl">
+            <p class="mb-3 text-[11px] font-bold uppercase tracking-widest text-accent">Стоимость услуг</p>
+            <h2 class="font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl">Цены</h2>
+            <p class="mt-3 text-steel-500">Оплата по безналичному расчёту. Счёт — по заявке.</p>
+          </div>
+
+          <div class="grid gap-6 sm:grid-cols-2 lg:max-w-2xl">
+
+            <!-- Basic -->
+            <div class="rounded-2xl border border-white/10 bg-navy-900/60 p-8">
+              <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <i data-lucide="scale" style="width:20px;height:20px;color:#94a3b8"></i>
+              </div>
+              <h3 class="font-display text-xl font-bold uppercase tracking-wide text-white">Взвешивание</h3>
+              <p class="mt-1 text-sm text-steel-600">Поосное, определение общей массы</p>
+              <p class="mt-7 font-display text-6xl font-bold leading-none text-white">
+                75
+                <span class="text-2xl font-semibold text-steel-500"> BYN</span>
+              </p>
+              <ul class="mt-7 space-y-2.5 text-sm text-steel-400">
+                <li class="flex items-center gap-2.5">
+                  <i data-lucide="check" style="width:14px;height:14px;color:#22c55e"></i>
+                  Поосное взвешивание
+                </li>
+                <li class="flex items-center gap-2.5">
+                  <i data-lucide="check" style="width:14px;height:14px;color:#22c55e"></i>
+                  В движении, без остановки
+                </li>
+                <li class="flex items-center gap-2.5">
+                  <i data-lucide="check" style="width:14px;height:14px;color:#22c55e"></i>
+                  Протокол взвешивания
+                </li>
+              </ul>
+              <button
+                type="button"
+                data-open-modal
+                class="mt-9 w-full rounded-sm border border-steel-600/60 py-3.5 text-sm font-bold uppercase tracking-wider text-steel-300 transition hover:border-steel-400 hover:text-white"
+              >Получить счёт</button>
+            </div>
+
+            <!-- Full — highlighted -->
+            <div class="relative rounded-2xl border border-accent/30 bg-gradient-to-br from-navy-800 via-navy-900 to-navy-950 p-8 shadow-[0_0_60px_-16px_rgba(34,197,94,.35)]">
+              <div class="absolute right-5 top-5 rounded-full bg-accent/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-accent">
+                Популярно
+              </div>
+              <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-accent/30 bg-accent/10">
+                <i data-lucide="file-badge-2" style="width:20px;height:20px;color:#22c55e"></i>
+              </div>
+              <h3 class="font-display text-xl font-bold uppercase tracking-wide text-white">МСВТС + Взвешивание</h3>
+              <p class="mt-1 text-sm text-steel-600">Международный сертификат для СНГ</p>
+              <p class="mt-7 font-display text-6xl font-bold leading-none text-white">
+                90
+                <span class="text-2xl font-semibold text-steel-500"> BYN</span>
+              </p>
+              <ul class="mt-7 space-y-2.5 text-sm text-steel-400">
+                <li class="flex items-center gap-2.5">
+                  <i data-lucide="check" style="width:14px;height:14px;color:#22c55e"></i>
+                  Всё из базового тарифа
+                </li>
+                <li class="flex items-center gap-2.5">
+                  <i data-lucide="check" style="width:14px;height:14px;color:#22c55e"></i>
+                  Международный сертификат МСВТС
+                </li>
+                <li class="flex items-center gap-2.5">
+                  <i data-lucide="check" style="width:14px;height:14px;color:#22c55e"></i>
+                  Принимается на границах СНГ
+                </li>
+                <li class="flex items-center gap-2.5">
+                  <i data-lucide="check" style="width:14px;height:14px;color:#22c55e"></i>
+                  Без повторных взвешиваний
+                </li>
+              </ul>
+              <button
+                type="button"
+                data-open-modal
+                class="btn-glow mt-9 w-full rounded-sm bg-accent py-4 text-sm font-bold uppercase tracking-widest text-white hover:bg-accent-hover"
+              >Заказать взвешивание</button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════ DOCS / CERTIFICATION ═══════════════════════ -->
+      <section
+        id="docs"
+        class="scroll-mt-28 border-b border-white/5 py-20 lg:py-28"
+      >
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="mb-14 max-w-2xl">
+            <p class="mb-3 text-[11px] font-bold uppercase tracking-widest text-accent">Документация</p>
+            <h2 class="font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl">
+              Сертификация<br />и прозрачность
+            </h2>
+            <p class="mt-4 text-steel-500">Вся разрешительная документация открыта для проверки.</p>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+            <!-- Аттестат -->
+            <a href="docs/atestat-vesy.pdf" target="_blank" rel="noopener"
+               class="doc-card group flex items-start gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
+                <i data-lucide="file-text" style="width:22px;height:22px;color:#94a3b8"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-white transition group-hover:text-accent">Аттестат измерительной лаборатории</p>
+                <p class="mt-1 text-xs text-steel-600">Официальная аккредитация</p>
+                <p class="mt-3 flex items-center gap-1.5 text-xs font-semibold text-steel-600 transition group-hover:text-accent">
+                  <i data-lucide="download" style="width:12px;height:12px"></i> Скачать PDF
+                </p>
+              </div>
+            </a>
+
+            <!-- Аккредитация -->
+            <a href="docs/akredit-vesy.pdf" target="_blank" rel="noopener"
+               class="doc-card group flex items-start gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
+                <i data-lucide="shield-check" style="width:22px;height:22px;color:#94a3b8"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-white transition group-hover:text-accent">Свидетельство об аккредитации</p>
+                <p class="mt-1 text-xs text-steel-600">Уполномоченная станция МСВТС</p>
+                <p class="mt-3 flex items-center gap-1.5 text-xs font-semibold text-steel-600 transition group-hover:text-accent">
+                  <i data-lucide="download" style="width:12px;height:12px"></i> Скачать PDF
+                </p>
+              </div>
+            </a>
+
+            <!-- МСВТС образец — highlighted -->
+            <a href="docs/mcvtc-vesy.pdf" target="_blank" rel="noopener"
+               class="doc-card group flex items-start gap-4 rounded-2xl border border-accent/25 bg-accent/5 p-6 shadow-[0_0_30px_-10px_rgba(34,197,94,.2)]">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-accent/30 bg-accent/10 transition group-hover:bg-accent/20">
+                <i data-lucide="file-badge-2" style="width:22px;height:22px;color:#22c55e"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-white transition group-hover:text-accent">Образец МСВТС</p>
+                <p class="mt-1 text-xs text-steel-600">Как выглядит сертификат</p>
+                <p class="mt-3 flex items-center gap-1.5 text-xs font-semibold text-accent">
+                  <i data-lucide="download" style="width:12px;height:12px"></i> Скачать PDF
+                </p>
+              </div>
+            </a>
+
+            <!-- Прайс -->
+            <a href="docs/price_vesy.pdf" target="_blank" rel="noopener"
+               class="doc-card group flex items-start gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
+                <i data-lucide="receipt" style="width:22px;height:22px;color:#94a3b8"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-white transition group-hover:text-accent">Прейскурант цен</p>
+                <p class="mt-1 text-xs text-steel-600">Актуальный прайс-лист</p>
+                <p class="mt-3 flex items-center gap-1.5 text-xs font-semibold text-steel-600 transition group-hover:text-accent">
+                  <i data-lucide="download" style="width:12px;height:12px"></i> Скачать PDF
+                </p>
+              </div>
+            </a>
+
+            <!-- Соглашение -->
+            <!-- Публичный договор на взвешивание -->
+            <a href="docs/dogvesy.pdf" target="_blank" rel="noopener"
+               class="doc-card group flex items-start gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
+                <i data-lucide="file-signature" style="width:22px;height:22px;color:#94a3b8"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-white transition group-hover:text-accent">Публичный договор на взвешивание</p>
+                <p class="mt-1 text-xs text-steel-600">Договор по взвешиванию транспортных средств</p>
+                <p class="mt-3 flex items-center gap-1.5 text-xs font-semibold text-steel-600 transition group-hover:text-accent">
+                  <i data-lucide="download" style="width:12px;height:12px"></i> Скачать PDF
+                </p>
+              </div>
+            </a>
+
+            <!-- Соглашение на выдачу МСВТС -->
+            <a href="docs/vesy_soglashenie.pdf" target="_blank" rel="noopener"
+               class="doc-card group flex items-start gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
+                <i data-lucide="handshake" style="width:22px;height:22px;color:#94a3b8"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-white transition group-hover:text-accent">Соглашение на выдачу МСВТС</p>
+                <p class="mt-1 text-xs text-steel-600">Соглашение о введении международного сертификата МСВТС</p>
+                <p class="mt-3 flex items-center gap-1.5 text-xs font-semibold text-steel-600 transition group-hover:text-accent">
+                  <i data-lucide="download" style="width:12px;height:12px"></i> Скачать PDF
+                </p>
+              </div>
+            </a>
+
+            <!-- Квитанция -->
+            <a href="docs/kvitancia_vesy.pdf" target="_blank" rel="noopener"
+               class="doc-card group flex items-start gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
+                <i data-lucide="clipboard-list" style="width:22px;height:22px;color:#94a3b8"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-white transition group-hover:text-accent">Квитанция / Акт</p>
+                <p class="mt-1 text-xs text-steel-600">Образец платёжного документа</p>
+                <p class="mt-3 flex items-center gap-1.5 text-xs font-semibold text-steel-600 transition group-hover:text-accent">
+                  <i data-lucide="download" style="width:12px;height:12px"></i> Скачать PDF
+                </p>
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════ CONTACTS ══════════════════════════════ -->
+      <section
+        id="contacts"
+        class="scroll-mt-28 relative overflow-hidden py-20 lg:py-28"
+      >
+        <!-- Photo backdrop vesy4 -->
+        <div class="absolute inset-0" aria-hidden="true">
+          <img
+            src="images/vesy4.png"
+            alt=""
+            class="h-full w-full object-cover"
+            style="filter:brightness(0.12) contrast(1.2)"
+          />
+          <div class="absolute inset-0 bg-gradient-to-b from-navy-950/95 via-navy-950/80 to-navy-950"></div>
+        </div>
+
+        <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="mb-14">
+            <p class="mb-3 text-[11px] font-bold uppercase tracking-widest text-accent">Где мы находимся</p>
+            <h2 class="font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl">Контакты</h2>
+          </div>
+
+          <!-- Top row: address + postal + hours -->
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+            <!-- Physical address -->
+            <div class="flex gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+              <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <i data-lucide="map-pin" style="width:20px;height:20px;color:#22c55e"></i>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-steel-600">Адрес</p>
+                <p class="mt-1 font-semibold text-white">Республика Беларусь</p>
+                <p class="text-sm text-steel-400">г. Минск, ул. Промышленная, 4/2</p>
+              </div>
+            </div>
+
+            <!-- Postal address -->
+            <div class="flex gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+              <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <i data-lucide="mailbox" style="width:20px;height:20px;color:#22c55e"></i>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-steel-600">Почтовый адрес</p>
+                <p class="mt-1 font-semibold text-white">220102, г. Минск</p>
+                <p class="text-sm text-steel-400">а/я 67</p>
+              </div>
+            </div>
+
+            <!-- Hours overview -->
+            <div class="flex gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6 sm:col-span-2 lg:col-span-1">
+              <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <i data-lucide="clock-3" style="width:20px;height:20px;color:#22c55e"></i>
+              </div>
+              <div class="space-y-2 text-sm">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-steel-600">Время работы</p>
+                <div>
+                  <p class="font-semibold text-white">Специалисты по взвешиванию</p>
+                  <p class="text-steel-400">Ежедневно, без выходных — 08:00–20:00</p>
+                </div>
+                <div>
+                  <p class="font-semibold text-white">Начальник станции / Бухгалтерия</p>
+                  <p class="text-steel-400">Пн–Пт — 08:00–17:00</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom row: 3 contact cards + CTA -->
+          <div class="mt-5 grid gap-5 lg:grid-cols-4">
+
+            <!-- Head of station -->
+            <div class="rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+              <p class="mb-4 text-[10px] font-bold uppercase tracking-widest text-steel-600">Начальник станции</p>
+              <div class="space-y-2.5">
+                <a href="tel:+375296286116"
+                   class="flex items-center gap-2.5 text-sm font-semibold text-white transition hover:text-accent">
+                  <i data-lucide="phone" style="width:15px;height:15px;color:#22c55e"></i>
+                  +375 29 628-61-16
+                </a>
+                <a href="mailto:bs.scale@rudolf.by"
+                   class="flex items-center gap-2 text-xs text-steel-400 transition hover:text-accent">
+                  <i data-lucide="mail" style="width:14px;height:14px;color:#64748b"></i>
+                  bs.scale@rudolf.by
+                </a>
+                <p class="text-[10px] text-steel-600">Пн–Пт, 08:00–17:00</p>
+              </div>
+            </div>
+
+            <!-- Accounting -->
+            <div class="rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+              <p class="mb-4 text-[10px] font-bold uppercase tracking-widest text-steel-600">Бухгалтерия</p>
+              <div class="space-y-2.5">
+                <a href="tel:+375173118315"
+                   class="flex items-center gap-2.5 text-sm font-semibold text-white transition hover:text-accent">
+                  <i data-lucide="phone" style="width:15px;height:15px;color:#22c55e"></i>
+                  +375 17 311-83-15
+                </a>
+                <a href="mailto:bs.scale@rudolf.by"
+                   class="flex items-center gap-2 text-xs text-steel-400 transition hover:text-accent">
+                  <i data-lucide="mail" style="width:14px;height:14px;color:#64748b"></i>
+                  bs.scale@rudolf.by
+                </a>
+                <p class="text-[10px] text-steel-600">Пн–Пт, 08:00–17:00</p>
+              </div>
+            </div>
+
+            <!-- Weighing staff -->
+            <div class="rounded-2xl border border-accent/20 bg-accent/5 p-6">
+              <p class="mb-4 text-[10px] font-bold uppercase tracking-widest text-steel-600">Специалисты по взвешиванию</p>
+              <div class="space-y-2.5">
+                <a href="tel:+375173545282"
+                   class="flex items-center gap-2.5 text-sm font-semibold text-white transition hover:text-accent">
+                  <i data-lucide="phone" style="width:15px;height:15px;color:#22c55e"></i>
+                  +375 17 354-52-82
+                </a>
+                <a href="tel:+375296286271"
+                   class="flex items-center gap-2.5 text-sm font-semibold text-white transition hover:text-accent">
+                  <i data-lucide="phone" style="width:15px;height:15px;color:#22c55e"></i>
+                  +375 29 628-62-71
+                </a>
+                <p class="text-[10px] text-steel-600">Ежедневно, 08:00–20:00</p>
+              </div>
+            </div>
+
+            <!-- CTA card -->
+            <div class="flex flex-col justify-between rounded-2xl border border-accent/25 bg-gradient-to-br from-navy-800/80 via-navy-900/70 to-navy-950 p-6 shadow-[0_0_60px_-20px_rgba(34,197,94,.3)]">
+              <div>
+                <p class="font-display text-lg font-bold uppercase tracking-wide text-white leading-snug">
+                  Нужна запись<br />или счёт?
+                </p>
+                <p class="mt-2 text-xs leading-relaxed text-steel-500">
+                  Оставьте заявку — счёт придёт на почту.
+                </p>
+              </div>
+              <button
+                type="button"
+                data-open-modal
+                class="btn-glow mt-6 w-full rounded-sm bg-accent py-3.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                Заказать / Счёт
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ═══════════════════════════ FOOTER ═══════════════════════════════════ -->
+    <footer class="border-t border-white/5 bg-navy-900/60 py-8">
+      <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-center text-sm text-steel-700 sm:flex-row sm:text-left sm:px-6 lg:px-8">
+        <p>© <span id="year"></span> ООО «Белсотра». Станция взвешивания. г. Минск.</p>
+        <a href="https://rudolf.by" target="_blank" rel="noopener noreferrer"
+           class="text-steel-600 transition hover:text-white">rudolf.by</a>
+      </div>
+    </footer>
+
+    <!-- ═══════════════════════════ MODAL ════════════════════════════════════ -->
+    <div
+      id="order-modal"
+      class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      aria-hidden="true"
+    >
+      <div
+        data-modal-backdrop
+        class="absolute inset-0 bg-navy-950/92 backdrop-blur-sm"
+        tabindex="-1"
+      ></div>
+
+      <div class="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-navy-900 shadow-2xl shadow-black/70">
+
+        <!-- Modal header -->
+        <div class="flex items-start justify-between border-b border-white/8 px-6 py-5 sm:px-8">
+          <div class="flex items-center gap-3">
+            <div class="flex h-9 w-9 items-center justify-center rounded-lg border border-accent/30 bg-accent/10">
+              <i data-lucide="truck" style="width:17px;height:17px;color:#22c55e"></i>
+            </div>
+            <h2 id="modal-title" class="font-display text-xl font-bold uppercase tracking-wide text-white">
+              Заявка на взвешивание
+            </h2>
+          </div>
+          <button
+            type="button"
+            data-close-modal
+            class="rounded-lg p-1.5 text-steel-500 transition hover:bg-white/5 hover:text-white"
+            aria-label="Закрыть"
+          >
+            <i data-lucide="x" style="width:20px;height:20px"></i>
+          </button>
+        </div>
+
+        <!-- Modal body (scrollable) -->
+        <div class="modal-scroll px-6 py-6 sm:px-8 sm:py-7">
+          <form id="order-form" novalidate>
+
+            <!-- Notice + attachments -->
+            <div class="order-form-notice mb-6 space-y-4 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm leading-relaxed text-steel-300">
+              <p>
+                <strong class="text-accent">Важно:</strong> пожалуйста, прикрепите ваши реквизиты для
+                выставления счёта (можно в ответном письме после отправки заявки или приложить файл к
+                корпоративной почте).
+              </p>
+              <div class="order-form-attachments flex flex-col gap-3 border-t border-accent/15 pt-4">
+                <input
+                  type="file"
+                  id="order-file-input"
+                  class="sr-only"
+                  multiple
+                  tabindex="-1"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,image/*,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                />
+                <button
+                  type="button"
+                  id="order-attach-btn"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-sm border border-steel-600/50 bg-navy-950/80 px-4 py-2.5 text-sm font-semibold uppercase tracking-wide text-steel-300 transition hover:border-accent/50 hover:text-white sm:w-auto sm:justify-start"
+                >
+                  <i data-lucide="paperclip" style="width:15px;height:15px;color:#22c55e"></i>
+                  Прикрепить файл
+                </button>
+                <p class="text-xs text-steel-600">PDF, изображения или Word. До 5 файлов, до 10 МБ каждый.</p>
+                <ul
+                  id="order-files-list"
+                  class="hidden list-none space-y-2 p-0 text-xs text-steel-300"
+                  aria-live="polite"
+                ></ul>
+              </div>
+            </div>
+
+            <!-- Fields -->
+            <div class="space-y-4">
+              <div>
+                <label for="company" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
+                  Название компании
+                </label>
+                <input
+                  id="company"
+                  name="company"
+                  type="text"
+                  required
+                  autocomplete="organization"
+                  class="w-full rounded-sm border border-white/10 bg-navy-950 px-4 py-3 text-white placeholder-steel-700 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+                  placeholder="ООО «…»"
+                />
+              </div>
+              <div>
+                <label for="phone" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
+                  Телефон
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  required
+                  autocomplete="tel"
+                  class="w-full rounded-sm border border-white/10 bg-navy-950 px-4 py-3 text-white placeholder-steel-700 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+                  placeholder="+375 …"
+                />
+              </div>
+              <div>
+                <label for="email" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  autocomplete="email"
+                  class="w-full rounded-sm border border-white/10 bg-navy-950 px-4 py-3 text-white placeholder-steel-700 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+                  placeholder="name@company.by"
+                />
+              </div>
+            </div>
+
+            <p id="form-message" class="mt-4 hidden text-sm" role="status"></p>
+
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row-reverse">
+              <button
+                type="submit"
+                id="submit-btn"
+                class="btn-glow flex-1 rounded-sm bg-accent py-3.5 text-sm font-bold uppercase tracking-widest text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Отправить заявку
+              </button>
+              <button
+                type="button"
+                data-close-modal
+                class="flex-1 rounded-sm border border-steel-600/60 py-3.5 text-sm font-semibold uppercase tracking-wide text-steel-400 transition hover:border-steel-400 hover:text-white"
+              >
+                Отмена
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
