@@ -13,8 +13,8 @@
 
   /* ══════════════════════════════════════════════════════
      TIME-SLOT KEY
-     Format: YYYY-MM-DD_H_B  (H = hour 0-23, B = 20-min block 0/1/2)
-     Must match api/queue.js exactly.
+     Format: YYYY-MM-DD_HH:MM  (MM = 00 | 20 | 40)
+     Must match api/queue.js buildSlotKey() exactly.
   ══════════════════════════════════════════════════════ */
   function slotKey(dateInput) {
     var d = dateInput ? new Date(dateInput) : new Date();
@@ -22,9 +22,9 @@
     var y   = d.getFullYear();
     var mo  = String(d.getMonth() + 1).padStart(2, "0");
     var day = String(d.getDate()).padStart(2, "0");
-    var h   = d.getHours();
-    var b   = Math.floor(d.getMinutes() / 20);
-    return y + "-" + mo + "-" + day + "_" + h + "_" + b;
+    var hh  = String(d.getHours()).padStart(2, "0");
+    var mm  = String(Math.floor(d.getMinutes() / 20) * 20).padStart(2, "0");
+    return y + "-" + mo + "-" + day + "_" + hh + ":" + mm;
   }
 
   /* ══════════════════════════════════════════════════════
