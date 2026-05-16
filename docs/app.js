@@ -11,24 +11,99 @@
 
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  /* ── HTML-escape: prevents Telegram 400 from special chars in user input ── */
-  function esc(s) {
-    return String(s)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+  /* ══════════════════════════════════════════════════════
+     QUEUE NUMBER
+     Deterministic, 1–12, changes every 15 minutes.
+     Simulates a live dispatch board without a real backend.
+  ══════════════════════════════════════════════════════ */
+  function getQueueNumber() {
+    var slot = Math.floor(Date.now() / (15 * 60 * 1000));
+    return (slot % 12) + 1;
   }
 
-  /* ── Modal ── */
+  var queueEl = document.getElementById("queue-number");
+  if (queueEl) {
+    queueEl.textContent = getQueueNumber();
+    setInterval(function () {
+      queueEl.textContent = getQueueNumber();
+    }, 60 * 1000);
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SERVICE SELECTOR
+  ══════════════════════════════════════════════════════ */
+  var serviceRate  = 75;
+  var serviceLabel = "Обычное взвешивание";
+
+  var svcCards = document.querySelectorAll(".svc-card");
+  svcCards.forEach(function (card) {
+    card.addEventListener("click", function () {
+      var radio = card.querySelector("input[type='radio']");
+      if (!radio) return;
+      radio.checked = true;
+      serviceRate  = parseInt(radio.dataset.rate, 10) || 75;
+      serviceLabel = radio.value;
+      svcCards.forEach(function (c) { c.classList.remove("svc-active"); });
+      card.classList.add("svc-active");
+      updateTotal();
+    });
+  });
+
+  /* ══════════════════════════════════════════════════════
+     VEHICLE COUNT  ─  [ − ]  [ n ]  [ + ]
+  ══════════════════════════════════════════════════════ */
+  var vehicleInput  = document.getElementById("vehicleCount");
+  var qtyDec        = document.getElementById("qty-dec");
+  var qtyInc        = document.getElementById("qty-inc");
+  var totalAmountEl = document.getElementById("total-amount");
+
+  function getVehicleCount() {
+    return Math.max(1, Math.min(99, parseInt(vehicleInput ? vehicleInput.value : "1", 10) || 1));
+  }
+
+  if (qtyDec) {
+    qtyDec.addEventListener("click", function () {
+      var v = getVehicleCount();
+      if (v > 1) { vehicleInput.value = v - 1; updateTotal(); }
+    });
+  }
+  if (qtyInc) {
+    qtyInc.addEventListener("click", function () {
+      var v = getVehicleCount();
+      if (v < 99) { vehicleInput.value = v + 1; updateTotal(); }
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════
+     LIVE PRICE CALCULATOR
+  ══════════════════════════════════════════════════════ */
+  function updateTotal() {
+    if (totalAmountEl) totalAmountEl.textContent = serviceRate * getVehicleCount();
+  }
+
+  /* ══════════════════════════════════════════════════════
+     MODAL
+  ══════════════════════════════════════════════════════ */
   function openModal() {
     if (!modal) return;
     modal.classList.remove("hidden");
     modal.classList.add("flex");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-    var first = modal.querySelector("input, select");
+    var first = modal.querySelector("input[type='text'], input[type='tel'], input[type='email'], input[type='datetime-local']");
     if (first) first.focus();
+  }
+
+  function resetForm() {
+    if (form) form.reset();
+    serviceRate  = 75;
+    serviceLabel = "Обычное взвешивание";
+    svcCards.forEach(function (c, i) {
+      if (i === 0) c.classList.add("svc-active");
+      else         c.classList.remove("svc-active");
+    });
+    if (vehicleInput) vehicleInput.value = "1";
+    updateTotal();
   }
 
   function closeModal() {
@@ -38,7 +113,7 @@
     modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
     hideMessage();
-    if (form) form.reset();
+    resetForm();
   }
 
   document.querySelectorAll("[data-open-modal]").forEach(function (btn) {
@@ -55,10 +130,12 @@
     if (e.key === "Escape" && modal && !modal.classList.contains("hidden")) closeModal();
   });
 
-  /* ── Messages ── */
-  function showMessage(text, isError) {
+  /* ══════════════════════════════════════════════════════
+     MESSAGES
+  ══════════════════════════════════════════════════════ */
+  function showMessage(html, isError) {
     if (!messageEl) return;
-    messageEl.textContent = text;
+    messageEl.innerHTML = html;
     messageEl.classList.remove("hidden", "text-emerald-400", "text-red-400");
     messageEl.classList.add(isError ? "text-red-400" : "text-emerald-400");
   }
@@ -66,10 +143,12 @@
   function hideMessage() {
     if (!messageEl) return;
     messageEl.classList.add("hidden");
-    messageEl.textContent = "";
+    messageEl.innerHTML = "";
   }
 
-  /* ── Button state ── */
+  /* ══════════════════════════════════════════════════════
+     BUTTON STATE
+  ══════════════════════════════════════════════════════ */
   var SPINNER =
     '<svg class="inline-block animate-spin mr-2" style="width:16px;height:16px;vertical-align:-3px"' +
     ' fill="none" viewBox="0 0 24 24">' +
@@ -83,24 +162,30 @@
     submitBtn.innerHTML = on ? SPINNER : "Отправить заявку";
   }
 
-  /* ── Telegram (plain text — no parse_mode, safe for any company name) ── */
+  /* ══════════════════════════════════════════════════════
+     TELEGRAM
+  ══════════════════════════════════════════════════════ */
   function buildTelegramText(d) {
     var lines = [
       "\uD83D\uDCCB Новая заявка \u2014 Белсотра", "",
-      "Дата и время заезда: " + (d.arrivalDateTime || "—"),
-      "Компания: "            + d.company,
-      "Телефон: "             + d.phone,
-      "Email: "               + d.email,
-      "Кол-во взвешиваний: "  + (d.weighingsCount || "—"),
+      "\uD83C\uDFAB Номер очереди: " + d.queueNumber,
+      "\uD83D\uDE9B Услуга: "        + d.serviceType,
+      "\uD83D\uDD22 Кол-во машин: "  + d.vehicleCount,
+      "\uD83D\uDCB0 Итого: "         + d.totalCost + " BYN",
+      "",
+      "\uD83D\uDCC5 Дата/время заезда: " + (d.arrivalDateTime || "\u2014"),
+      "\uD83C\uDFE2 Компания: "          + d.company,
+      "\uD83D\uDCDE Телефон: "           + d.phone,
+      "\uD83D\uDCE7 Email: "             + d.email,
     ];
-    if (d.carNumber) lines.push("Госномер / № авто: " + d.carNumber);
-    if (d.cargoType) lines.push("Тип груза: "         + d.cargoType);
+    if (d.carNumber) lines.push("\uD83D\uDE97 Госномер / \u2116 авто: " + d.carNumber);
+    if (d.cargoType) lines.push("\uD83D\uDCE6 Тип груза: "              + d.cargoType);
     return lines.join("\n");
   }
 
   function sendToTelegram(d) {
     return fetch(TG_URL, {
-      method: "POST",
+      method:  "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id:                  TG_CHAT_ID,
@@ -114,7 +199,9 @@
     });
   }
 
-  /* ── Email via /api/send-email ── */
+  /* ══════════════════════════════════════════════════════
+     EMAIL via /api/send-email
+  ══════════════════════════════════════════════════════ */
   function sendToEmail(d) {
     return fetch("/api/send-email", {
       method:  "POST",
@@ -127,57 +214,65 @@
     });
   }
 
-  /* ── Form submit ── */
+  /* ══════════════════════════════════════════════════════
+     FORM SUBMIT
+  ══════════════════════════════════════════════════════ */
   if (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
 
-      var fd = new FormData(form);
-      var d  = {
+      var fd       = new FormData(form);
+      var queueNum = getQueueNumber();
+      var count    = getVehicleCount();
+      var total    = serviceRate * count;
+
+      var d = {
+        queueNumber:     String(queueNum),
+        serviceType:     serviceLabel,
+        vehicleCount:    String(count),
+        totalCost:       String(total),
         arrivalDateTime: (fd.get("arrivalDateTime") || "").toString().trim(),
         company:         (fd.get("company")         || "").toString().trim(),
         phone:           (fd.get("phone")           || "").toString().trim(),
         email:           (fd.get("email")           || "").toString().trim(),
-        weighingsCount:  (fd.get("weighingsCount")  || "").toString().trim(),
         carNumber:       (fd.get("carNumber")       || "").toString().trim(),
         cargoType:       (fd.get("cargoType")       || "").toString().trim(),
       };
 
-      if (!d.arrivalDateTime || !d.company || !d.phone || !d.email || !d.weighingsCount) {
+      if (!d.arrivalDateTime || !d.company || !d.phone || !d.email) {
         showMessage("Пожалуйста, заполните все обязательные поля.", true);
         return;
       }
 
-      /* Block button immediately — synchronous, before any async work */
       setLoading(true);
       hideMessage();
 
-      /* Fire both requests in parallel; allSettled never throws */
       Promise.allSettled([
         sendToTelegram(d),
         sendToEmail(d),
-      ])
-        .then(function (results) {
-          var allFailed = results.every(function (r) { return r.status === "rejected"; });
+      ]).then(function (results) {
+        var allFailed = results.every(function (r) { return r.status === "rejected"; });
+        setLoading(false);
 
-          setLoading(false);
-
-          if (allFailed) {
-            results.forEach(function (r) { if (r.reason) console.warn(r.reason); });
-            showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
-            return;
-          }
-
-          showMessage("Заявка отправлена! Мы свяжемся с вами.", false);
-          form.reset();
-          setTimeout(closeModal, 2500);
-        })
-        .catch(function (err) {
-          /* Safety net — should never be reached with allSettled */
-          console.error("Unexpected error:", err);
-          setLoading(false);
+        if (allFailed) {
+          results.forEach(function (r) { if (r.reason) console.warn(r.reason); });
           showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
-        });
+          return;
+        }
+
+        showMessage(
+          "\u2705 Заявка успешно оформлена! " +
+          "Ваш номер в очереди: <strong style=\"color:#22c55e;font-size:1.1em\">" + queueNum + "</strong>. " +
+          "Номер очереди и подтверждение отправлены на ваш Email и в Telegram.",
+          false
+        );
+        resetForm();
+        setTimeout(closeModal, 5000);
+      }).catch(function (err) {
+        console.error("Unexpected error:", err);
+        setLoading(false);
+        showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
+      });
     });
   }
 })();

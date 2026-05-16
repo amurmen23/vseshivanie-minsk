@@ -2,7 +2,7 @@ const { Resend } = require("resend");
 
 /**
  * POST /api/send-email
- * Body JSON: { arrivalDateTime, company, phone, email, weighingsCount, carNumber, cargoType }
+ * Body JSON: { queueNumber, serviceType, vehicleCount, totalCost, arrivalDateTime, company, phone, email, carNumber, cargoType }
  *
  * Required env var (set in Vercel → Settings → Environment Variables):
  *   RESEND_API_KEY — API-ключ из https://resend.com/api-keys
@@ -12,7 +12,8 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { arrivalDateTime, company, phone, email, weighingsCount, carNumber, cargoType } = req.body || {};
+  const { queueNumber, serviceType, vehicleCount, totalCost,
+          arrivalDateTime, company, phone, email, carNumber, cargoType } = req.body || {};
 
   if (!company || !phone) {
     return res.status(400).json({ error: "Поля company и phone обязательны" });
@@ -25,13 +26,16 @@ module.exports = async function handler(req, res) {
   }
 
   const rows = [
-    arrivalDateTime ? ["Дата и время заезда", arrivalDateTime.replace("T", " ")] : null,
-    ["Компания",  company],
-    ["Телефон",   phone],
-    email         ? ["Email", `<a href="mailto:${email}" style="color:#22c55e">${email}</a>`] : null,
-    weighingsCount ? ["Кол-во взвешиваний", weighingsCount] : null,
-    carNumber      ? ["Госномер / № авто",  carNumber]      : null,
-    cargoType      ? ["Тип груза",          cargoType]      : null,
+    queueNumber  ? ["🎫 Номер очереди",   `<strong style="color:#16a34a;font-size:16px">${queueNumber}</strong>`] : null,
+    serviceType  ? ["🚛 Услуга",          serviceType]  : null,
+    vehicleCount ? ["🔢 Кол-во машин",    vehicleCount] : null,
+    totalCost    ? ["💰 Итого к оплате",  `<strong style="color:#16a34a">${totalCost} BYN</strong>`] : null,
+    arrivalDateTime ? ["📅 Дата и время заезда", arrivalDateTime.replace("T", " ")] : null,
+    ["🏢 Компания", company],
+    ["📞 Телефон",  phone],
+    email     ? ["📧 Email", `<a href="mailto:${email}" style="color:#22c55e">${email}</a>`] : null,
+    carNumber ? ["🚗 Госномер / № авто", carNumber] : null,
+    cargoType ? ["📦 Тип груза",         cargoType] : null,
   ]
     .filter(Boolean)
     .map(
