@@ -87,13 +87,14 @@
   function buildTelegramText(d) {
     var lines = [
       "\uD83D\uDCCB Новая заявка \u2014 Белсотра", "",
-      "Компания: "           + d.company,
-      "Телефон: "            + d.phone,
-      "Email: "              + d.email,
+      "Дата и время заезда: " + (d.arrivalDateTime || "—"),
+      "Компания: "            + d.company,
+      "Телефон: "             + d.phone,
+      "Email: "               + d.email,
+      "Кол-во взвешиваний: "  + (d.weighingsCount || "—"),
     ];
-    if (d.carNumber)      lines.push("Госномер / № авто: "  + d.carNumber);
-    if (d.cargoType)      lines.push("Тип груза: "          + d.cargoType);
-    if (d.weighingsCount) lines.push("Кол-во взвешиваний: " + d.weighingsCount);
+    if (d.carNumber) lines.push("Госномер / № авто: " + d.carNumber);
+    if (d.cargoType) lines.push("Тип груза: "         + d.cargoType);
     return lines.join("\n");
   }
 
@@ -133,15 +134,16 @@
 
       var fd = new FormData(form);
       var d  = {
-        company:        (fd.get("company")        || "").toString().trim(),
-        phone:          (fd.get("phone")          || "").toString().trim(),
-        weighingsCount: (fd.get("weighingsCount") || "").toString().trim(),
-        carNumber:      (fd.get("carNumber")      || "").toString().trim(),
-        cargoType:      (fd.get("cargoType")      || "").toString().trim(),
-        email:          (fd.get("email")          || "").toString().trim(),
+        arrivalDateTime: (fd.get("arrivalDateTime") || "").toString().trim(),
+        company:         (fd.get("company")         || "").toString().trim(),
+        phone:           (fd.get("phone")           || "").toString().trim(),
+        email:           (fd.get("email")           || "").toString().trim(),
+        weighingsCount:  (fd.get("weighingsCount")  || "").toString().trim(),
+        carNumber:       (fd.get("carNumber")       || "").toString().trim(),
+        cargoType:       (fd.get("cargoType")       || "").toString().trim(),
       };
 
-      if (!d.company || !d.phone || !d.email || !d.carNumber || !d.cargoType || !d.weighingsCount) {
+      if (!d.arrivalDateTime || !d.company || !d.phone || !d.email || !d.weighingsCount) {
         showMessage("Пожалуйста, заполните все обязательные поля.", true);
         return;
       }

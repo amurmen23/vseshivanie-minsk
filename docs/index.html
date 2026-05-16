@@ -481,8 +481,8 @@
               <img src="landing/images/vesy1.png" alt="Общий вид весовой площадки" class="photo-cinematic h-full w-full object-cover" />
             </div>
 
-            <div class="gallery-item overflow-hidden rounded-2xl" style="aspect-ratio:4/3">
-              <img src="landing/images/vesy6.png" alt="Здание и въезд на станцию" class="photo-cinematic h-full w-full object-cover" />
+            <div class="gallery-item overflow-hidden rounded-2xl" style="min-height:180px">
+              <img src="landing/images/vesy6.png" alt="Здание и въезд на станцию" class="photo-cinematic w-full object-cover" style="height:100%;min-height:180px" />
             </div>
 
             <div class="gallery-item overflow-hidden rounded-2xl" style="aspect-ratio:4/3">
@@ -930,9 +930,24 @@
 
             <!-- Fields -->
             <div class="space-y-4">
+
+              <!-- ОБЯЗАТЕЛЬНЫЕ ПОЛЯ -->
+              <div>
+                <label for="arrivalDateTime" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
+                  Планируемая дата и время заезда
+                </label>
+                <input
+                  id="arrivalDateTime"
+                  name="arrivalDateTime"
+                  type="datetime-local"
+                  required
+                  class="w-full rounded-sm border border-white/10 bg-navy-950 px-4 py-3 text-white outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+                  style="color-scheme:dark"
+                />
+              </div>
               <div>
                 <label for="company" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
-                  Название компании <span class="text-accent">*</span>
+                  Название компании
                 </label>
                 <input
                   id="company"
@@ -946,7 +961,7 @@
               </div>
               <div>
                 <label for="phone" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
-                  Телефон <span class="text-accent">*</span>
+                  Телефон
                 </label>
                 <input
                   id="phone"
@@ -960,7 +975,7 @@
               </div>
               <div>
                 <label for="email" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
-                  Email <span class="text-accent">*</span>
+                  Email
                 </label>
                 <input
                   id="email"
@@ -972,37 +987,10 @@
                   placeholder="name@company.by"
                 />
               </div>
-              <div>
-                <label for="carNumber" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
-                  Гос. номер авто <span class="text-accent">*</span>
-                </label>
-                <input
-                  id="carNumber"
-                  name="carNumber"
-                  type="text"
-                  required
-                  autocomplete="off"
-                  class="w-full rounded-sm border border-white/10 bg-navy-950 px-4 py-3 text-white placeholder-steel-700 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
-                  placeholder="АА 0000-0"
-                />
-              </div>
-              <div>
-                <label for="cargoType" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
-                  Тип груза <span class="text-accent">*</span>
-                </label>
-                <input
-                  id="cargoType"
-                  name="cargoType"
-                  type="text"
-                  required
-                  autocomplete="off"
-                  class="w-full rounded-sm border border-white/10 bg-navy-950 px-4 py-3 text-white placeholder-steel-700 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
-                  placeholder="Щебень, металл, зерно…"
-                />
-              </div>
+
               <div>
                 <label for="weighingsCount" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
-                  Количество взвешиваний <span class="text-accent">*</span>
+                  Количество взвешиваний
                 </label>
                 <input
                   id="weighingsCount"
@@ -1014,6 +1002,34 @@
                   autocomplete="off"
                   class="w-full rounded-sm border border-white/10 bg-navy-950 px-4 py-3 text-white placeholder-steel-700 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
                   placeholder="Количество взвешиваний (1–99)"
+                />
+              </div>
+
+              <!-- НЕОБЯЗАТЕЛЬНЫЕ ПОЛЯ — внизу формы -->
+              <div>
+                <label for="carNumber" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
+                  Гос. номер авто
+                </label>
+                <input
+                  id="carNumber"
+                  name="carNumber"
+                  type="text"
+                  autocomplete="off"
+                  class="w-full rounded-sm border border-white/10 bg-navy-950 px-4 py-3 text-white placeholder-steel-700 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+                  placeholder="АА 0000-0"
+                />
+              </div>
+              <div>
+                <label for="cargoType" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-steel-500">
+                  Тип груза
+                </label>
+                <input
+                  id="cargoType"
+                  name="cargoType"
+                  type="text"
+                  autocomplete="off"
+                  class="w-full rounded-sm border border-white/10 bg-navy-950 px-4 py-3 text-white placeholder-steel-700 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+                  placeholder="Щебень, металл, зерно…"
                 />
               </div>
             </div>

@@ -2,7 +2,7 @@ const { Resend } = require("resend");
 
 /**
  * POST /api/send-email
- * Body JSON: { company, phone, weighingsCount, carNumber, cargoType, email }
+ * Body JSON: { arrivalDateTime, company, phone, email, weighingsCount, carNumber, cargoType }
  *
  * Required env var (set in Vercel → Settings → Environment Variables):
  *   RESEND_API_KEY — API-ключ из https://resend.com/api-keys
@@ -12,7 +12,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { company, phone, weighingsCount, carNumber, cargoType, email } = req.body || {};
+  const { arrivalDateTime, company, phone, email, weighingsCount, carNumber, cargoType } = req.body || {};
 
   if (!company || !phone) {
     return res.status(400).json({ error: "Поля company и phone обязательны" });
@@ -25,12 +25,13 @@ module.exports = async function handler(req, res) {
   }
 
   const rows = [
-    ["Компания",                company],
-    ["Телефон",                 phone],
+    arrivalDateTime ? ["Дата и время заезда", arrivalDateTime.replace("T", " ")] : null,
+    ["Компания",  company],
+    ["Телефон",   phone],
+    email         ? ["Email", `<a href="mailto:${email}" style="color:#22c55e">${email}</a>`] : null,
     weighingsCount ? ["Кол-во взвешиваний", weighingsCount] : null,
     carNumber      ? ["Госномер / № авто",  carNumber]      : null,
     cargoType      ? ["Тип груза",          cargoType]      : null,
-    email          ? ["Email", `<a href="mailto:${email}" style="color:#22c55e">${email}</a>`] : null,
   ]
     .filter(Boolean)
     .map(
