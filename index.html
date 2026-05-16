@@ -136,6 +136,10 @@
       .stat-item-accent { border-color: #22c55e; }
       .stat-item-muted  { border-color: rgba(255,255,255,.15); }
 
+      /* ─── Email link hover ─── */
+      a[href^="mailto:"] { transition: color .2s ease; }
+      a[href^="mailto:"]:hover { color: #22c55e !important; }
+
       /* ─── Section eyebrow labels — enlarged green ─── */
       .eyebrow-label {
         display: block;
@@ -415,13 +419,14 @@
               class="bento-card relative col-span-1 min-h-72 overflow-hidden rounded-2xl border border-white/8 lg:col-span-2"
               style="background-image:url('landing/images/vesy2.png');background-size:cover;background-position:center"
             >
-              <div class="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/85 to-navy-950/30"></div>
-              <div class="relative flex h-full flex-col justify-end p-8">
-                <span class="mb-2 eyebrow-label text-base">Модель</span>
-                <h3 class="font-display text-4xl font-bold uppercase text-white sm:text-5xl">Весы М8200Д</h3>
-                <p class="mt-2 max-w-sm text-sm leading-relaxed text-slate-300">
-                  Автомобильные весы для поосного взвешивания грузовых ТС и автопоездов в движении. Применяются при выдаче МСВТС.
-                </p>
+              <div class="relative flex h-full flex-col justify-end p-6">
+                <div style="background:rgba(255,255,255,0.90);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:12px;padding:20px 24px;">
+                  <span class="mb-2 block text-sm font-bold uppercase tracking-widest" style="color:#16a34a;letter-spacing:.1em">Модель</span>
+                  <h3 class="font-display text-4xl font-bold uppercase sm:text-5xl" style="color:#0f172a">Весы М8200Д</h3>
+                  <p class="mt-2 max-w-sm text-sm leading-relaxed" style="color:#334155">
+                    Автомобильные весы для поосного взвешивания грузовых ТС и автопоездов в движении.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -808,10 +813,10 @@
                   <i data-lucide="phone" style="width:15px;height:15px;color:#22c55e"></i>
                   +375 29 628-61-16
                 </a>
-                <a href="mailto:bs.scale@rudolf.by"
+                <a href="mailto:belsotra.vesy@mail.ru"
                    class="flex items-center gap-2 text-xs text-steel-400 transition hover:text-accent">
                   <i data-lucide="mail" style="width:14px;height:14px;color:#64748b"></i>
-                  bs.scale@rudolf.by
+                  belsotra.vesy@mail.ru
                 </a>
                 <p class="text-[10px] text-steel-600">Пн–Пт, 08:00–17:00</p>
               </div>
