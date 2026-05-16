@@ -4,51 +4,52 @@
  *
  * Slot format: YYYY-MM-DD_H_B
  *   H = hour 0-23
- *   B = 20-min block (0 = :00-:19,  1 = :20-:39,  2 = :40-:59)
+ *   B = 20-min block  (0 = :00-:19 | 1 = :20-:39 | 2 = :40-:59)
  *
- * Storage: Vercel KV (@vercel/kv).
- *   Env vars set automatically when you connect a KV DB in the Vercel dashboard:
- *     KV_REST_API_URL, KV_REST_API_TOKEN (+ read-only variant)
+ * Storage: Vercel KV (Upstash REST API).
+ *   Required env vars — set automatically when you connect a KV store
+ *   in the Vercel dashboard (Storage → Create → KV → Connect to project):
+ *     KV_REST_API_URL   — e.g. https://YOUR.upstash.io
+ *     KV_REST_API_TOKEN — your rest token
  *
- *   If KV is not configured the endpoint still works:
- *     GET  → { next: 1 }   (no persistent data available)
- *     POST → { number: 1 } (same)
- *   The client keeps a localStorage mirror as a same-browser fallback.
+ *   No npm package is needed — we talk to the Upstash REST API directly
+ *   via native fetch, which is always available in Vercel Node runtime.
+ *
+ *   Graceful fallback: if env vars are absent, returns 1 (no persistent data).
+ *   The client also mirrors counters in localStorage as an extra safety net.
  */
 
-let kv = null;
-try {
-  // Will throw at runtime if package is not installed
-  kv = require("@vercel/kv").kv;
-} catch (_) {}
+const KV_URL   = () => process.env.KV_REST_API_URL;
+const KV_TOKEN = () => process.env.KV_REST_API_TOKEN;
+const KV_OK    = () => !!(KV_URL() && KV_TOKEN());
 
-const KV_AVAILABLE = () =>
-  kv !== null &&
-  process.env.KV_REST_API_URL &&
-  process.env.KV_REST_API_TOKEN;
+function kvKey(slot) { return "bls:queue:" + slot; }
 
-/* ── helpers ── */
-function kvKey(slot) { return "queue:" + slot; }
-
-async function peek(slot) {
-  if (!KV_AVAILABLE()) return 0;
-  try {
-    const val = await kv.get(kvKey(slot));
-    return parseInt(val || "0", 10);
-  } catch (e) {
-    console.error("KV get error:", e.message);
-    return 0;
-  }
+/**
+ * GET /get/<key>  → { result: "N" | null }
+ */
+async function kvGet(key) {
+  if (!KV_OK()) return 0;
+  const r = await fetch(KV_URL() + "/get/" + encodeURIComponent(key), {
+    headers: { Authorization: "Bearer " + KV_TOKEN() },
+  });
+  if (!r.ok) throw new Error("KV GET " + r.status);
+  const { result } = await r.json();
+  return parseInt(result || "0", 10);
 }
 
-async function claim(slot) {
-  if (!KV_AVAILABLE()) return 1;
-  try {
-    return await kv.incr(kvKey(slot)); // atomic, returns new value
-  } catch (e) {
-    console.error("KV incr error:", e.message);
-    return 1;
-  }
+/**
+ * POST /incr/<key>  → { result: N }   (atomic, returns new value)
+ */
+async function kvIncr(key) {
+  if (!KV_OK()) return 1;
+  const r = await fetch(KV_URL() + "/incr/" + encodeURIComponent(key), {
+    method:  "POST",
+    headers: { Authorization: "Bearer " + KV_TOKEN() },
+  });
+  if (!r.ok) throw new Error("KV INCR " + r.status);
+  const { result } = await r.json();
+  return parseInt(result, 10);
 }
 
 /* ── handler ── */
@@ -56,22 +57,28 @@ module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-
   if (req.method === "OPTIONS") return res.status(204).end();
 
-  if (req.method === "GET") {
-    const { slot } = req.query;
-    if (!slot) return res.status(400).json({ error: "slot required" });
-    const count = await peek(slot);
-    return res.status(200).json({ slot, next: count + 1, kv: KV_AVAILABLE() });
-  }
+  try {
+    /* ── peek ── */
+    if (req.method === "GET") {
+      const { slot } = req.query;
+      if (!slot) return res.status(400).json({ error: "slot required" });
+      const count = await kvGet(kvKey(slot));
+      return res.status(200).json({ slot, next: count + 1, kv: KV_OK() });
+    }
 
-  if (req.method === "POST") {
-    const { slot } = req.body || {};
-    if (!slot) return res.status(400).json({ error: "slot required" });
-    const number = await claim(slot);
-    return res.status(200).json({ slot, number, kv: KV_AVAILABLE() });
-  }
+    /* ── claim ── */
+    if (req.method === "POST") {
+      const { slot } = req.body || {};
+      if (!slot) return res.status(400).json({ error: "slot required" });
+      const number = await kvIncr(kvKey(slot));
+      return res.status(200).json({ slot, number, kv: KV_OK() });
+    }
 
-  return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ error: "Method not allowed" });
+  } catch (e) {
+    console.error("queue handler error:", e.message);
+    return res.status(500).json({ error: e.message, number: 1, next: 1 });
+  }
 };
