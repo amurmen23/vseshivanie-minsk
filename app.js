@@ -12,72 +12,117 @@
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   /* ══════════════════════════════════════════════════════
-     TIME-SLOT QUEUE  (LocalStorage)
-
-     Key format:  bls_q_YYYY_M_D_H_B
-       where B = 20-min block (0 = :00-:19, 1 = :20-:39, 2 = :40-:59)
-
-     peekQueue(key)  → next available number (read-only)
-     claimQueue(key) → assigns and increments (call on submit)
+     TIME-SLOT KEY
+     Format: YYYY-MM-DD_H_B  (H = hour 0-23, B = 20-min block 0/1/2)
+     Must match api/queue.js exactly.
   ══════════════════════════════════════════════════════ */
-  function slotKey(date) {
-    var d = (date instanceof Date) ? date : (date ? new Date(date) : new Date());
+  function slotKey(dateInput) {
+    var d = dateInput ? new Date(dateInput) : new Date();
     if (isNaN(d.getTime())) d = new Date();
-    return [
-      "bls_q",
-      d.getFullYear(),
-      d.getMonth() + 1,
-      d.getDate(),
-      d.getHours(),
-      Math.floor(d.getMinutes() / 20),
-    ].join("_");
+    var y   = d.getFullYear();
+    var mo  = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    var h   = d.getHours();
+    var b   = Math.floor(d.getMinutes() / 20);
+    return y + "-" + mo + "-" + day + "_" + h + "_" + b;
   }
 
-  function peekQueue(key) {
-    try { return (parseInt(localStorage.getItem(key) || "0", 10)) + 1; }
-    catch (e) { return 1; }
+  /* ══════════════════════════════════════════════════════
+     LOCAL-STORAGE FALLBACK (when server is unreachable)
+  ══════════════════════════════════════════════════════ */
+  function localPeek(key) {
+    try { return (parseInt(localStorage.getItem("bls_q_" + key) || "0", 10)) + 1; }
+    catch (_) { return 1; }
   }
-
-  function claimQueue(key) {
+  function localClaim(key) {
     try {
-      var n = peekQueue(key);
-      localStorage.setItem(key, String(n));
+      var n = localPeek(key);
+      localStorage.setItem("bls_q_" + key, String(n));
       return n;
-    } catch (e) { return 1; }
+    } catch (_) { return 1; }
   }
 
-  /* ── Navbar queue widget (current slot) ── */
+  /* ══════════════════════════════════════════════════════
+     SERVER-SIDE QUEUE API
+  ══════════════════════════════════════════════════════ */
+  async function serverPeek(slot) {
+    const r = await fetch("/api/queue?slot=" + encodeURIComponent(slot));
+    if (!r.ok) throw new Error("queue peek " + r.status);
+    const data = await r.json();
+    return data.next || 1;
+  }
+
+  async function serverClaim(slot) {
+    const r = await fetch("/api/queue", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ slot }),
+    });
+    if (!r.ok) throw new Error("queue claim " + r.status);
+    const data = await r.json();
+    return data.number || 1;
+  }
+
+  /* ── Combined peek (server first, localStorage fallback) ── */
+  async function peekQueue(slot) {
+    try { return await serverPeek(slot); }
+    catch (_) { return localPeek(slot); }
+  }
+
+  /* ── Combined claim (server first, localStorage fallback) ── */
+  async function claimQueue(slot) {
+    try { return await serverClaim(slot); }
+    catch (_) { return localClaim(slot); }
+  }
+
+  /* ══════════════════════════════════════════════════════
+     NAVBAR QUEUE WIDGET
+  ══════════════════════════════════════════════════════ */
   var queueEl = document.getElementById("queue-number");
-  function refreshQueueWidget() {
-    if (queueEl) queueEl.textContent = peekQueue(slotKey(null));
-  }
-  refreshQueueWidget();
-  setInterval(refreshQueueWidget, 60 * 1000);
 
-  /* ── Form queue preview (based on selected datetime) ── */
-  var arrivalInput   = document.getElementById("arrivalDateTime");
-  var queuePreviewEl = document.getElementById("queue-preview");
-  var queuePreviewNum= document.getElementById("queue-preview-num");
+  async function refreshQueueWidget() {
+    if (!queueEl) return;
+    try {
+      var n = await peekQueue(slotKey(null));
+      queueEl.textContent = n;
+    } catch (_) {
+      queueEl.textContent = localPeek(slotKey(null));
+    }
+  }
+
+  refreshQueueWidget();
+  setInterval(refreshQueueWidget, 2 * 60 * 1000); // every 2 minutes
+
+  /* ══════════════════════════════════════════════════════
+     FORM QUEUE PREVIEW (based on selected datetime)
+  ══════════════════════════════════════════════════════ */
+  var arrivalInput    = document.getElementById("arrivalDateTime");
+  var queuePreviewEl  = document.getElementById("queue-preview");
+  var queuePreviewNum = document.getElementById("queue-preview-num");
 
   if (arrivalInput) {
-    arrivalInput.addEventListener("change", function () {
+    arrivalInput.addEventListener("change", async function () {
       if (!this.value) {
         if (queuePreviewEl) queuePreviewEl.classList.add("hidden");
         return;
       }
-      var n = peekQueue(slotKey(this.value));
-      if (queuePreviewNum) queuePreviewNum.textContent = "#" + n;
-      if (queuePreviewEl) queuePreviewEl.classList.remove("hidden");
+      try {
+        var n = await peekQueue(slotKey(this.value));
+        if (queuePreviewNum) queuePreviewNum.textContent = "#" + n;
+        if (queuePreviewEl) queuePreviewEl.classList.remove("hidden");
+      } catch (_) {
+        if (queuePreviewEl) queuePreviewEl.classList.add("hidden");
+      }
     });
   }
 
   /* ══════════════════════════════════════════════════════
      DUAL-SERVICE COUNTERS
   ══════════════════════════════════════════════════════ */
-  var qtyW = document.getElementById("qty-weighing");  // Взвешивание
-  var qtyM = document.getElementById("qty-mcvtc");     // МСВТС
-  var cardW = document.getElementById("card-weighing");
-  var cardM = document.getElementById("card-mcvtc");
+  var qtyW       = document.getElementById("qty-weighing");
+  var qtyM       = document.getElementById("qty-mcvtc");
+  var cardW      = document.getElementById("card-weighing");
+  var cardM      = document.getElementById("card-mcvtc");
   var totalBlock = document.getElementById("total-block");
   var totalAmountEl = document.getElementById("total-amount");
 
@@ -85,7 +130,7 @@
     return Math.max(0, Math.min(99, parseInt(el ? el.value : "0", 10) || 0));
   }
 
-  function makeCounter(decId, incId, inputEl, cardEl) {
+  function makeCounter(decId, incId, inputEl) {
     var dec = document.getElementById(decId);
     var inc = document.getElementById(incId);
     if (dec) dec.addEventListener("click", function () {
@@ -98,23 +143,18 @@
     });
   }
 
-  makeCounter("dec-weighing", "inc-weighing", qtyW, cardW);
-  makeCounter("dec-mcvtc",    "inc-mcvtc",    qtyM, cardM);
+  makeCounter("dec-weighing", "inc-weighing", qtyW);
+  makeCounter("dec-mcvtc",    "inc-mcvtc",    qtyM);
 
   function onCounterChange() {
     var w = getQty(qtyW);
     var m = getQty(qtyM);
+    var total = w * 75 + m * 90;
 
-    /* Card highlight */
     if (cardW) cardW.classList.toggle("svc-active", w > 0);
     if (cardM) cardM.classList.toggle("svc-active", m > 0);
-
-    /* Итого */
-    var total = w * 75 + m * 90;
     if (totalAmountEl) totalAmountEl.textContent = total;
     if (totalBlock) totalBlock.classList.toggle("hidden", total === 0);
-
-    /* Submit button */
     if (submitBtn && !submitBtn.dataset.loading) {
       submitBtn.disabled = (total === 0);
     }
@@ -206,10 +246,10 @@
   function buildTelegramText(d) {
     var lines = [
       "\uD83D\uDCCB Новая заявка \u2014 Белсотра", "",
-      "\uD83C\uDFAB Номер очереди: " + d.queueNumber,
+      "\uD83C\uDFAB Номер в очереди: " + d.queueNumber,
     ];
     if (parseInt(d.qtyWeighing, 10) > 0)
-      lines.push("\uD83D\uDE9B Обычное взвешивание: " + d.qtyWeighing + " авт. \xd7 75 = " + d.totalWeighing + " BYN");
+      lines.push("\uD83D\uDE9B Взвешивание: " + d.qtyWeighing + " авт. \xd7 75 = " + d.totalWeighing + " BYN");
     if (parseInt(d.qtyMcvtc, 10) > 0)
       lines.push("\uD83D\uDCC4 Оформление МСВТС: " + d.qtyMcvtc + " авт. \xd7 90 = " + d.totalMcvtc + " BYN");
     lines.push("\uD83D\uDCB0 ИТОГО: " + d.totalCost + " BYN");
@@ -239,9 +279,6 @@
     });
   }
 
-  /* ══════════════════════════════════════════════════════
-     EMAIL via /api/send-email
-  ══════════════════════════════════════════════════════ */
   function sendToEmail(d) {
     return fetch("/api/send-email", {
       method:  "POST",
@@ -255,78 +292,87 @@
   }
 
   /* ══════════════════════════════════════════════════════
-     FORM SUBMIT
+     FORM SUBMIT  (async)
   ══════════════════════════════════════════════════════ */
   if (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-
-      var fd  = new FormData(form);
-      var w   = getQty(qtyW);
-      var m   = getQty(qtyM);
-      var total = w * 75 + m * 90;
-
-      if (total === 0) {
-        showMessage("Выберите хотя бы одну услугу (количество машин > 0).", true);
-        return;
-      }
-
-      var arrivalVal = (fd.get("arrivalDateTime") || "").toString().trim();
-      var key        = slotKey(arrivalVal || null);
-      var queueNum   = claimQueue(key); // assign and save
-
-      var d = {
-        queueNumber:     String(queueNum),
-        qtyWeighing:     String(w),
-        totalWeighing:   String(w * 75),
-        qtyMcvtc:        String(m),
-        totalMcvtc:      String(m * 90),
-        totalCost:       String(total),
-        arrivalDateTime: arrivalVal,
-        company:         (fd.get("company")   || "").toString().trim(),
-        phone:           (fd.get("phone")     || "").toString().trim(),
-        email:           (fd.get("email")     || "").toString().trim(),
-        carNumber:       (fd.get("carNumber") || "").toString().trim(),
-        cargoType:       (fd.get("cargoType") || "").toString().trim(),
-      };
-
-      if (!d.arrivalDateTime || !d.company || !d.phone || !d.email) {
-        showMessage("Пожалуйста, заполните все обязательные поля.", true);
-        return;
-      }
-
-      setLoading(true);
-      hideMessage();
-
-      Promise.allSettled([
-        sendToTelegram(d),
-        sendToEmail(d),
-      ]).then(function (results) {
-        var allFailed = results.every(function (r) { return r.status === "rejected"; });
-        setLoading(false);
-
-        if (allFailed) {
-          results.forEach(function (r) { if (r.reason) console.warn(r.reason); });
-          showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
-          return;
-        }
-
-        /* Refresh navbar widget after claiming a slot */
-        refreshQueueWidget();
-
-        showMessage(
-          "\u2705 Заявка успешно оформлена! " +
-          "Ваш номер в очереди: <strong style=\"color:#22c55e;font-size:1.15em\">" + queueNum + "</strong>. " +
-          "Номер очереди и подтверждение отправлены на ваш Email и в Telegram.",
-          false
-        );
-        hardReset();
-        setTimeout(closeModal, 5500);
-      }).catch(function (err) {
-        console.error("Unexpected error:", err);
+      handleSubmit().catch(function (err) {
+        console.error("Unexpected submit error:", err);
         setLoading(false);
         showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
       });
     });
+  }
+
+  async function handleSubmit() {
+    var fd    = new FormData(form);
+    var w     = getQty(qtyW);
+    var m     = getQty(qtyM);
+    var total = w * 75 + m * 90;
+
+    if (total === 0) {
+      showMessage("Выберите хотя бы одну услугу (количество машин > 0).", true);
+      return;
+    }
+
+    var arrivalVal = (fd.get("arrivalDateTime") || "").toString().trim();
+    if (!arrivalVal || !(fd.get("company") || "").toString().trim() ||
+        !(fd.get("phone") || "").toString().trim() ||
+        !(fd.get("email") || "").toString().trim()) {
+      showMessage("Пожалуйста, заполните все обязательные поля.", true);
+      return;
+    }
+
+    setLoading(true);
+    hideMessage();
+
+    /* 1. Claim queue number server-side (atomic INCR in Vercel KV) */
+    var slot     = slotKey(arrivalVal);
+    var queueNum = await claimQueue(slot);
+
+    /* 2. Build payload */
+    var d = {
+      queueNumber:     String(queueNum),
+      qtyWeighing:     String(w),
+      totalWeighing:   String(w * 75),
+      qtyMcvtc:        String(m),
+      totalMcvtc:      String(m * 90),
+      totalCost:       String(total),
+      arrivalDateTime: arrivalVal,
+      company:         (fd.get("company")   || "").toString().trim(),
+      phone:           (fd.get("phone")     || "").toString().trim(),
+      email:           (fd.get("email")     || "").toString().trim(),
+      carNumber:       (fd.get("carNumber") || "").toString().trim(),
+      cargoType:       (fd.get("cargoType") || "").toString().trim(),
+    };
+
+    /* 3. Send Telegram + Email in parallel */
+    var results = await Promise.allSettled([
+      sendToTelegram(d),
+      sendToEmail(d),
+    ]);
+
+    var allFailed = results.every(function (r) { return r.status === "rejected"; });
+    setLoading(false);
+
+    if (allFailed) {
+      results.forEach(function (r) { if (r.reason) console.warn(r.reason); });
+      showMessage("Ошибка отправки. Позвоните: +375 29 628-61-16.", true);
+      return;
+    }
+
+    /* 4. Update navbar widget with new real number */
+    refreshQueueWidget();
+
+    /* 5. Success */
+    showMessage(
+      "\u2705 Заявка успешно оформлена! " +
+      "Ваш номер в очереди: <strong style=\"color:#22c55e;font-size:1.15em\">" + queueNum + "</strong>. " +
+      "Номер очереди и подтверждение отправлены на ваш Email и в Telegram.",
+      false
+    );
+    hardReset();
+    setTimeout(closeModal, 5500);
   }
 })();
