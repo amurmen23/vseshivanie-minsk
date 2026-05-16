@@ -147,12 +147,15 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.12em;
-        color: #22c55e;
+        color: #22c55e !important;
         line-height: 1.3;
       }
       @media (max-width: 640px) {
         .eyebrow-label { font-size: 1.1rem; }
       }
+
+      /* ─── Force accent color to always be green ─── */
+      .text-accent { color: #22c55e !important; }
 
       /* ─── Typography scale & contrast ─── */
       html { font-size: 18px; }
@@ -164,19 +167,6 @@
       h1 { font-size: clamp(2rem, 6vw, 4rem);   line-height: 1.15; }
       h2 { font-size: clamp(1.6rem, 4vw, 2.8rem); line-height: 1.2; }
       h3 { font-size: clamp(1.1rem, 2.5vw, 1.5rem); line-height: 1.3; }
-
-      /* Dark-background text — full contrast */
-      .bg-navy-950 p, .bg-navy-900 p,
-      [class*="bg-navy"] p { color: #cbd5e1; }
-
-      /* Key body text — crisp white on dark */
-      .text-steel-300 { color: #cbd5e1 !important; }
-      .text-steel-400 { color: #94a3b8 !important; }
-      .text-steel-500 { color: #64748b !important; }
-
-      /* Light-section text — deep charcoal for sunlight readability */
-      .bg-white p, .bg-slate-50 p,
-      section.bg-white, section.bg-slate-50 { color: #1e293b; }
     </style>
   </head>
 
@@ -419,14 +409,12 @@
               class="bento-card relative col-span-1 min-h-72 overflow-hidden rounded-2xl border border-white/8 lg:col-span-2"
               style="background-image:url('landing/images/vesy2.png');background-size:cover;background-position:center"
             >
-              <div class="relative flex h-full flex-col justify-end p-6">
-                <div style="background:rgba(255,255,255,0.90);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:12px;padding:20px 24px;">
-                  <span class="mb-2 block text-sm font-bold uppercase tracking-widest" style="color:#16a34a;letter-spacing:.1em">Модель</span>
-                  <h3 class="font-display text-4xl font-bold uppercase sm:text-5xl" style="color:#0f172a">Весы М8200Д</h3>
-                  <p class="mt-2 max-w-sm text-sm leading-relaxed" style="color:#334155">
-                    Автомобильные весы для поосного взвешивания грузовых ТС и автопоездов в движении.
-                  </p>
-                </div>
+              <div class="relative flex h-full flex-col justify-end p-8">
+                <span class="mb-2 block text-sm font-bold uppercase tracking-widest" style="color:#16a34a;letter-spacing:.1em">Модель</span>
+                <h3 class="font-display text-4xl font-bold uppercase sm:text-5xl" style="color:#0f172a">Весы М8200Д</h3>
+                <p class="mt-2 max-w-sm text-sm leading-relaxed" style="color:#1e293b">
+                  Автомобильные весы для поосного взвешивания грузовых ТС и автопоездов в движении.
+                </p>
               </div>
             </div>
 
