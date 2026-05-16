@@ -2,7 +2,8 @@ const { Resend } = require("resend");
 
 /**
  * POST /api/send-email
- * Body JSON: { queueNumber, serviceType, vehicleCount, totalCost, arrivalDateTime, company, phone, email, carNumber, cargoType }
+ * Body JSON: { queueNumber, qtyWeighing, totalWeighing, qtyMcvtc, totalMcvtc, totalCost,
+ *              arrivalDateTime, company, phone, email, carNumber, cargoType }
  *
  * Required env var (set in Vercel → Settings → Environment Variables):
  *   RESEND_API_KEY — API-ключ из https://resend.com/api-keys
@@ -12,7 +13,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { queueNumber, serviceType, vehicleCount, totalCost,
+  const { queueNumber,
+          qtyWeighing, totalWeighing,
+          qtyMcvtc, totalMcvtc, totalCost,
           arrivalDateTime, company, phone, email, carNumber, cargoType } = req.body || {};
 
   if (!company || !phone) {
@@ -26,10 +29,12 @@ module.exports = async function handler(req, res) {
   }
 
   const rows = [
-    queueNumber  ? ["🎫 Номер очереди",   `<strong style="color:#16a34a;font-size:16px">${queueNumber}</strong>`] : null,
-    serviceType  ? ["🚛 Услуга",          serviceType]  : null,
-    vehicleCount ? ["🔢 Кол-во машин",    vehicleCount] : null,
-    totalCost    ? ["💰 Итого к оплате",  `<strong style="color:#16a34a">${totalCost} BYN</strong>`] : null,
+    queueNumber  ? ["🎫 Номер очереди", `<strong style="color:#16a34a;font-size:16px">${queueNumber}</strong>`] : null,
+    parseInt(qtyWeighing,10) > 0
+      ? ["🚛 Взвешивание", `${qtyWeighing} авт. × 75 = <strong>${totalWeighing} BYN</strong>`] : null,
+    parseInt(qtyMcvtc,10) > 0
+      ? ["📄 Оформление МСВТС", `${qtyMcvtc} авт. × 90 = <strong>${totalMcvtc} BYN</strong>`] : null,
+    totalCost    ? ["💰 ИТОГО к оплате", `<strong style="color:#16a34a;font-size:15px">${totalCost} BYN</strong>`] : null,
     arrivalDateTime ? ["📅 Дата и время заезда", arrivalDateTime.replace("T", " ")] : null,
     ["🏢 Компания", company],
     ["📞 Телефон",  phone],

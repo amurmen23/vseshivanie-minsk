@@ -12,73 +12,112 @@
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   /* ══════════════════════════════════════════════════════
-     QUEUE NUMBER
-     Deterministic, 1–12, changes every 15 minutes.
-     Simulates a live dispatch board without a real backend.
+     TIME-SLOT QUEUE  (LocalStorage)
+
+     Key format:  bls_q_YYYY_M_D_H_B
+       where B = 20-min block (0 = :00-:19, 1 = :20-:39, 2 = :40-:59)
+
+     peekQueue(key)  → next available number (read-only)
+     claimQueue(key) → assigns and increments (call on submit)
   ══════════════════════════════════════════════════════ */
-  function getQueueNumber() {
-    var slot = Math.floor(Date.now() / (15 * 60 * 1000));
-    return (slot % 12) + 1;
+  function slotKey(date) {
+    var d = (date instanceof Date) ? date : (date ? new Date(date) : new Date());
+    if (isNaN(d.getTime())) d = new Date();
+    return [
+      "bls_q",
+      d.getFullYear(),
+      d.getMonth() + 1,
+      d.getDate(),
+      d.getHours(),
+      Math.floor(d.getMinutes() / 20),
+    ].join("_");
   }
 
+  function peekQueue(key) {
+    try { return (parseInt(localStorage.getItem(key) || "0", 10)) + 1; }
+    catch (e) { return 1; }
+  }
+
+  function claimQueue(key) {
+    try {
+      var n = peekQueue(key);
+      localStorage.setItem(key, String(n));
+      return n;
+    } catch (e) { return 1; }
+  }
+
+  /* ── Navbar queue widget (current slot) ── */
   var queueEl = document.getElementById("queue-number");
-  if (queueEl) {
-    queueEl.textContent = getQueueNumber();
-    setInterval(function () {
-      queueEl.textContent = getQueueNumber();
-    }, 60 * 1000);
+  function refreshQueueWidget() {
+    if (queueEl) queueEl.textContent = peekQueue(slotKey(null));
+  }
+  refreshQueueWidget();
+  setInterval(refreshQueueWidget, 60 * 1000);
+
+  /* ── Form queue preview (based on selected datetime) ── */
+  var arrivalInput   = document.getElementById("arrivalDateTime");
+  var queuePreviewEl = document.getElementById("queue-preview");
+  var queuePreviewNum= document.getElementById("queue-preview-num");
+
+  if (arrivalInput) {
+    arrivalInput.addEventListener("change", function () {
+      if (!this.value) {
+        if (queuePreviewEl) queuePreviewEl.classList.add("hidden");
+        return;
+      }
+      var n = peekQueue(slotKey(this.value));
+      if (queuePreviewNum) queuePreviewNum.textContent = "#" + n;
+      if (queuePreviewEl) queuePreviewEl.classList.remove("hidden");
+    });
   }
 
   /* ══════════════════════════════════════════════════════
-     SERVICE SELECTOR
+     DUAL-SERVICE COUNTERS
   ══════════════════════════════════════════════════════ */
-  var serviceRate  = 75;
-  var serviceLabel = "Обычное взвешивание";
-
-  var svcCards = document.querySelectorAll(".svc-card");
-  svcCards.forEach(function (card) {
-    card.addEventListener("click", function () {
-      var radio = card.querySelector("input[type='radio']");
-      if (!radio) return;
-      radio.checked = true;
-      serviceRate  = parseInt(radio.dataset.rate, 10) || 75;
-      serviceLabel = radio.value;
-      svcCards.forEach(function (c) { c.classList.remove("svc-active"); });
-      card.classList.add("svc-active");
-      updateTotal();
-    });
-  });
-
-  /* ══════════════════════════════════════════════════════
-     VEHICLE COUNT  ─  [ − ]  [ n ]  [ + ]
-  ══════════════════════════════════════════════════════ */
-  var vehicleInput  = document.getElementById("vehicleCount");
-  var qtyDec        = document.getElementById("qty-dec");
-  var qtyInc        = document.getElementById("qty-inc");
+  var qtyW = document.getElementById("qty-weighing");  // Взвешивание
+  var qtyM = document.getElementById("qty-mcvtc");     // МСВТС
+  var cardW = document.getElementById("card-weighing");
+  var cardM = document.getElementById("card-mcvtc");
+  var totalBlock = document.getElementById("total-block");
   var totalAmountEl = document.getElementById("total-amount");
 
-  function getVehicleCount() {
-    return Math.max(1, Math.min(99, parseInt(vehicleInput ? vehicleInput.value : "1", 10) || 1));
+  function getQty(el) {
+    return Math.max(0, Math.min(99, parseInt(el ? el.value : "0", 10) || 0));
   }
 
-  if (qtyDec) {
-    qtyDec.addEventListener("click", function () {
-      var v = getVehicleCount();
-      if (v > 1) { vehicleInput.value = v - 1; updateTotal(); }
+  function makeCounter(decId, incId, inputEl, cardEl) {
+    var dec = document.getElementById(decId);
+    var inc = document.getElementById(incId);
+    if (dec) dec.addEventListener("click", function () {
+      var v = getQty(inputEl);
+      if (v > 0) { inputEl.value = v - 1; onCounterChange(); }
     });
-  }
-  if (qtyInc) {
-    qtyInc.addEventListener("click", function () {
-      var v = getVehicleCount();
-      if (v < 99) { vehicleInput.value = v + 1; updateTotal(); }
+    if (inc) inc.addEventListener("click", function () {
+      var v = getQty(inputEl);
+      if (v < 99) { inputEl.value = v + 1; onCounterChange(); }
     });
   }
 
-  /* ══════════════════════════════════════════════════════
-     LIVE PRICE CALCULATOR
-  ══════════════════════════════════════════════════════ */
-  function updateTotal() {
-    if (totalAmountEl) totalAmountEl.textContent = serviceRate * getVehicleCount();
+  makeCounter("dec-weighing", "inc-weighing", qtyW, cardW);
+  makeCounter("dec-mcvtc",    "inc-mcvtc",    qtyM, cardM);
+
+  function onCounterChange() {
+    var w = getQty(qtyW);
+    var m = getQty(qtyM);
+
+    /* Card highlight */
+    if (cardW) cardW.classList.toggle("svc-active", w > 0);
+    if (cardM) cardM.classList.toggle("svc-active", m > 0);
+
+    /* Итого */
+    var total = w * 75 + m * 90;
+    if (totalAmountEl) totalAmountEl.textContent = total;
+    if (totalBlock) totalBlock.classList.toggle("hidden", total === 0);
+
+    /* Submit button */
+    if (submitBtn && !submitBtn.dataset.loading) {
+      submitBtn.disabled = (total === 0);
+    }
   }
 
   /* ══════════════════════════════════════════════════════
@@ -90,20 +129,17 @@
     modal.classList.add("flex");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-    var first = modal.querySelector("input[type='text'], input[type='tel'], input[type='email'], input[type='datetime-local']");
-    if (first) first.focus();
   }
 
-  function resetForm() {
+  function hardReset() {
     if (form) form.reset();
-    serviceRate  = 75;
-    serviceLabel = "Обычное взвешивание";
-    svcCards.forEach(function (c, i) {
-      if (i === 0) c.classList.add("svc-active");
-      else         c.classList.remove("svc-active");
-    });
-    if (vehicleInput) vehicleInput.value = "1";
-    updateTotal();
+    if (qtyW) qtyW.value = "0";
+    if (qtyM) qtyM.value = "0";
+    if (cardW) cardW.classList.remove("svc-active");
+    if (cardM) cardM.classList.remove("svc-active");
+    if (totalBlock) totalBlock.classList.add("hidden");
+    if (queuePreviewEl) queuePreviewEl.classList.add("hidden");
+    if (submitBtn) { submitBtn.disabled = true; delete submitBtn.dataset.loading; }
   }
 
   function closeModal() {
@@ -113,7 +149,7 @@
     modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
     hideMessage();
-    resetForm();
+    hardReset();
   }
 
   document.querySelectorAll("[data-open-modal]").forEach(function (btn) {
@@ -160,6 +196,8 @@
     if (!submitBtn) return;
     submitBtn.disabled = on;
     submitBtn.innerHTML = on ? SPINNER : "Отправить заявку";
+    if (on) submitBtn.dataset.loading = "1";
+    else    delete submitBtn.dataset.loading;
   }
 
   /* ══════════════════════════════════════════════════════
@@ -169,17 +207,19 @@
     var lines = [
       "\uD83D\uDCCB Новая заявка \u2014 Белсотра", "",
       "\uD83C\uDFAB Номер очереди: " + d.queueNumber,
-      "\uD83D\uDE9B Услуга: "        + d.serviceType,
-      "\uD83D\uDD22 Кол-во машин: "  + d.vehicleCount,
-      "\uD83D\uDCB0 Итого: "         + d.totalCost + " BYN",
-      "",
-      "\uD83D\uDCC5 Дата/время заезда: " + (d.arrivalDateTime || "\u2014"),
-      "\uD83C\uDFE2 Компания: "          + d.company,
-      "\uD83D\uDCDE Телефон: "           + d.phone,
-      "\uD83D\uDCE7 Email: "             + d.email,
     ];
-    if (d.carNumber) lines.push("\uD83D\uDE97 Госномер / \u2116 авто: " + d.carNumber);
-    if (d.cargoType) lines.push("\uD83D\uDCE6 Тип груза: "              + d.cargoType);
+    if (parseInt(d.qtyWeighing, 10) > 0)
+      lines.push("\uD83D\uDE9B Обычное взвешивание: " + d.qtyWeighing + " авт. \xd7 75 = " + d.totalWeighing + " BYN");
+    if (parseInt(d.qtyMcvtc, 10) > 0)
+      lines.push("\uD83D\uDCC4 Оформление МСВТС: " + d.qtyMcvtc + " авт. \xd7 90 = " + d.totalMcvtc + " BYN");
+    lines.push("\uD83D\uDCB0 ИТОГО: " + d.totalCost + " BYN");
+    lines.push("");
+    lines.push("\uD83D\uDCC5 Дата/время заезда: " + (d.arrivalDateTime || "\u2014"));
+    lines.push("\uD83C\uDFE2 Компания: " + d.company);
+    lines.push("\uD83D\uDCDE Телефон: "  + d.phone);
+    lines.push("\uD83D\uDCE7 Email: "    + d.email);
+    if (d.carNumber) lines.push("\uD83D\uDE97 Госномер: " + d.carNumber);
+    if (d.cargoType) lines.push("\uD83D\uDCE6 Тип груза: " + d.cargoType);
     return lines.join("\n");
   }
 
@@ -221,22 +261,33 @@
     form.addEventListener("submit", function (e) {
       e.preventDefault();
 
-      var fd       = new FormData(form);
-      var queueNum = getQueueNumber();
-      var count    = getVehicleCount();
-      var total    = serviceRate * count;
+      var fd  = new FormData(form);
+      var w   = getQty(qtyW);
+      var m   = getQty(qtyM);
+      var total = w * 75 + m * 90;
+
+      if (total === 0) {
+        showMessage("Выберите хотя бы одну услугу (количество машин > 0).", true);
+        return;
+      }
+
+      var arrivalVal = (fd.get("arrivalDateTime") || "").toString().trim();
+      var key        = slotKey(arrivalVal || null);
+      var queueNum   = claimQueue(key); // assign and save
 
       var d = {
         queueNumber:     String(queueNum),
-        serviceType:     serviceLabel,
-        vehicleCount:    String(count),
+        qtyWeighing:     String(w),
+        totalWeighing:   String(w * 75),
+        qtyMcvtc:        String(m),
+        totalMcvtc:      String(m * 90),
         totalCost:       String(total),
-        arrivalDateTime: (fd.get("arrivalDateTime") || "").toString().trim(),
-        company:         (fd.get("company")         || "").toString().trim(),
-        phone:           (fd.get("phone")           || "").toString().trim(),
-        email:           (fd.get("email")           || "").toString().trim(),
-        carNumber:       (fd.get("carNumber")       || "").toString().trim(),
-        cargoType:       (fd.get("cargoType")       || "").toString().trim(),
+        arrivalDateTime: arrivalVal,
+        company:         (fd.get("company")   || "").toString().trim(),
+        phone:           (fd.get("phone")     || "").toString().trim(),
+        email:           (fd.get("email")     || "").toString().trim(),
+        carNumber:       (fd.get("carNumber") || "").toString().trim(),
+        cargoType:       (fd.get("cargoType") || "").toString().trim(),
       };
 
       if (!d.arrivalDateTime || !d.company || !d.phone || !d.email) {
@@ -260,14 +311,17 @@
           return;
         }
 
+        /* Refresh navbar widget after claiming a slot */
+        refreshQueueWidget();
+
         showMessage(
           "\u2705 Заявка успешно оформлена! " +
-          "Ваш номер в очереди: <strong style=\"color:#22c55e;font-size:1.1em\">" + queueNum + "</strong>. " +
+          "Ваш номер в очереди: <strong style=\"color:#22c55e;font-size:1.15em\">" + queueNum + "</strong>. " +
           "Номер очереди и подтверждение отправлены на ваш Email и в Telegram.",
           false
         );
-        resetForm();
-        setTimeout(closeModal, 5000);
+        hardReset();
+        setTimeout(closeModal, 5500);
       }).catch(function (err) {
         console.error("Unexpected error:", err);
         setLoading(false);
