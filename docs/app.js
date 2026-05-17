@@ -12,19 +12,22 @@
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   /* ══════════════════════════════════════════════════════
-     TIME-SLOT KEY
-     Format: YYYY-MM-DD_HH:MM  (MM = 00 | 20 | 40)
-     Must match api/queue.js buildSlotKey() exactly.
+     CALENDAR DAY KEY (Europe/Minsk)
+     Matches api/queue.js normalizeDaySlot / buildDayKey.
+     For datetime-local, use the date part so it does not depend on browser TZ.
   ══════════════════════════════════════════════════════ */
-  function slotKey(dateInput) {
-    var d = dateInput ? new Date(dateInput) : new Date();
-    if (isNaN(d.getTime())) d = new Date();
-    var y   = d.getFullYear();
-    var mo  = String(d.getMonth() + 1).padStart(2, "0");
-    var day = String(d.getDate()).padStart(2, "0");
-    var hh  = String(d.getHours()).padStart(2, "0");
-    var mm  = String(Math.floor(d.getMinutes() / 20) * 20).padStart(2, "0");
-    return y + "-" + mo + "-" + day + "_" + hh + ":" + mm;
+  var MINSK_TZ = "Europe/Minsk";
+
+  function dayKey(dateInput) {
+    if (dateInput == null || dateInput === "") {
+      return new Date().toLocaleDateString("en-CA", { timeZone: MINSK_TZ });
+    }
+    var s = String(dateInput).trim();
+    var m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (m) return m[1];
+    var d = new Date(dateInput);
+    if (isNaN(d.getTime())) return new Date().toLocaleDateString("en-CA", { timeZone: MINSK_TZ });
+    return d.toLocaleDateString("en-CA", { timeZone: MINSK_TZ });
   }
 
   /* ══════════════════════════════════════════════════════
@@ -83,10 +86,10 @@
   async function refreshQueueWidget() {
     if (!queueEl) return;
     try {
-      var n = await peekQueue(slotKey(null));
+      var n = await peekQueue(dayKey(null));
       queueEl.textContent = n;
     } catch (_) {
-      queueEl.textContent = localPeek(slotKey(null));
+      queueEl.textContent = localPeek(dayKey(null));
     }
   }
 
@@ -107,7 +110,7 @@
         return;
       }
       try {
-        var n = await peekQueue(slotKey(this.value));
+        var n = await peekQueue(dayKey(this.value));
         if (queuePreviewNum) queuePreviewNum.textContent = "#" + n;
         if (queuePreviewEl) queuePreviewEl.classList.remove("hidden");
       } catch (_) {
@@ -328,7 +331,7 @@
     hideMessage();
 
     /* 1. Claim queue number server-side (atomic INCR in Vercel KV) */
-    var slot     = slotKey(arrivalVal);
+    var slot     = dayKey(arrivalVal);
     var queueNum = await claimQueue(slot);
 
     /* 2. Build payload */

@@ -1,14 +1,14 @@
 /**
- * GET  /api/queue?slot=...  → { slot, next: N }   peek (no write)
- * POST /api/queue { slot }  → { slot, number: N } claim (atomic INCR)
+ * GET  /api/queue?slot=...  → { slot, result: N }   peek (no write)
+ * POST /api/queue { slot }  → { slot, result: N }   claim (atomic INCR)
  *
  * Storage: Vercel KV — Upstash Redis REST API.
  *   Vercel auto-sets these when you connect a KV store to the project:
  *     KV_REST_API_URL   – Upstash REST endpoint (no trailing slash needed)
  *     KV_REST_API_TOKEN – write token
  *
- *   Key format in Redis: bls:queue:YYYY-MM-DD_HH:MM
- *     where HH:MM is the start of the 20-min slot (e.g. 08:00 | 08:20 | 08:40)
+ *   Key format in Redis: bls:queue:YYYY-MM-DD
+ *     Calendar day in Europe/Minsk (UTC+3) — one ascending counter per day.
  *
  *   Fallback: when env vars are absent, returns { next: 1 } / { number: 1 }
  *   so the front-end never breaks.
@@ -78,23 +78,30 @@ async function kvIncr(key) {
   return parseInt(String(result), 10);
 }
 
-/* ── Slot key ─────────────────────────────────────────────────────────────── */
+/* ── Day key (Europe/Minsk) ───────────────────────────────────────────────── */
+
+const MINSK_TZ    = "Europe/Minsk";
+const DAY_KEY_RE  = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
- * Build a slot key from a datetime string or Date.
- * Rounds minutes down to the nearest 20-min boundary (0, 20, or 40).
- * Returns: "YYYY-MM-DD_HH:MM"  e.g. "2026-05-17_08:40"
+ * Calendar date in Минске as YYYY-MM-DD (servers run in UTC — avoid getFullYear/getDate in server TZ).
  */
-function buildSlotKey(input) {
-  const d = input ? new Date(input) : new Date();
-  if (isNaN(d.getTime())) return buildSlotKey(null);
+function buildDayKey(input) {
+  let d;
+  if (input == null || String(input).trim() === "") {
+    d = new Date();
+  } else {
+    d = new Date(input);
+  }
+  if (isNaN(d.getTime())) d = new Date();
+  return d.toLocaleDateString("en-CA", { timeZone: MINSK_TZ });
+}
 
-  const y   = d.getFullYear();
-  const mo  = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const hh  = String(d.getHours()).padStart(2, "0");
-  const mm  = String(Math.floor(d.getMinutes() / 20) * 20).padStart(2, "0");
-  return `${y}-${mo}-${day}_${hh}:${mm}`;
+/** Accept plain YYYY-MM-DD from the client or parse datetime → Minsk date */
+function normalizeDaySlot(raw) {
+  const s = String(raw || "").trim();
+  if (DAY_KEY_RE.test(s)) return s;
+  return buildDayKey(s);
 }
 
 function redisKey(slot) { return "bls:queue:" + slot; }
@@ -111,8 +118,7 @@ module.exports = async function handler(req, res) {
     /* ── peek ── */
     if (req.method === "GET") {
       const rawSlot = req.query.slot || "";
-      // Accept either a pre-built slot key or a raw datetime string
-      const slot = rawSlot.includes("_") ? rawSlot : buildSlotKey(rawSlot);
+      const slot = normalizeDaySlot(rawSlot);
       console.log("[queue] GET peek slot:", slot);
 
       if (!kvReady()) {
@@ -126,7 +132,7 @@ module.exports = async function handler(req, res) {
     if (req.method === "POST") {
       const body    = req.body || {};
       const rawSlot = body.slot || body.arrivalDateTime || "";
-      const slot    = rawSlot.includes("_") ? rawSlot : buildSlotKey(rawSlot);
+      const slot    = normalizeDaySlot(rawSlot);
       console.log("[queue] POST claim slot:", slot);
 
       if (!kvReady()) {
