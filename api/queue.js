@@ -116,10 +116,10 @@ module.exports = async function handler(req, res) {
       console.log("[queue] GET peek slot:", slot);
 
       if (!kvReady()) {
-        return res.status(200).json({ slot, next: 1, kv: false });
+        return res.status(200).json({ slot, result: 1, kv: false });
       }
       const count = await kvGet(redisKey(slot));
-      return res.status(200).json({ slot, next: count + 1, kv: true });
+      return res.status(200).json({ slot, result: count + 1, kv: true });
     }
 
     /* ── claim ── */
@@ -130,10 +130,10 @@ module.exports = async function handler(req, res) {
       console.log("[queue] POST claim slot:", slot);
 
       if (!kvReady()) {
-        return res.status(200).json({ slot, number: 1, kv: false });
+        return res.status(200).json({ slot, result: 1, kv: false });
       }
       const number = await kvIncr(redisKey(slot));
-      return res.status(200).json({ slot, number, kv: true });
+      return res.status(200).json({ slot, result: number, kv: true });
     }
 
     return res.status(405).json({ error: "Method not allowed" });
@@ -143,8 +143,7 @@ module.exports = async function handler(req, res) {
     // Always return a usable fallback so the form doesn't break
     return res.status(200).json({
       error:  e.message,
-      next:   1,
-      number: 1,
+      result: 1,
       kv:     false,
     });
   }

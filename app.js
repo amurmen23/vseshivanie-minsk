@@ -49,7 +49,7 @@
     const r = await fetch("/api/queue?slot=" + encodeURIComponent(slot));
     if (!r.ok) throw new Error("queue peek " + r.status);
     const data = await r.json();
-    return data.next || 1;
+    return data.result || 1;
   }
 
   async function serverClaim(slot) {
@@ -60,7 +60,7 @@
     });
     if (!r.ok) throw new Error("queue claim " + r.status);
     const data = await r.json();
-    return data.number || 1;
+    return data.result || 1;
   }
 
   /* ── Combined peek (server first, localStorage fallback) ── */
