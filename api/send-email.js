@@ -2,7 +2,8 @@ const { Resend } = require("resend");
 
 /**
  * POST /api/send-email
- * Body JSON: { company, phone, weighingsCount, carNumber, cargoType, email }
+ * Body JSON: { queueNumber, qtyWeighing, totalWeighing, qtyMcvtc, totalMcvtc, totalCost,
+ *              arrivalDateTime, company, phone, email, carNumber, cargoType }
  *
  * Required env var (set in Vercel → Settings → Environment Variables):
  *   RESEND_API_KEY — API-ключ из https://resend.com/api-keys
@@ -12,7 +13,10 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { company, phone, weighingsCount, carNumber, cargoType, email } = req.body || {};
+  const { queueNumber,
+          qtyWeighing, totalWeighing,
+          qtyMcvtc, totalMcvtc, totalCost,
+          arrivalDateTime, company, phone, email, carNumber, cargoType } = req.body || {};
 
   if (!company || !phone) {
     return res.status(400).json({ error: "Поля company и phone обязательны" });
@@ -25,12 +29,18 @@ module.exports = async function handler(req, res) {
   }
 
   const rows = [
-    ["Компания",                company],
-    ["Телефон",                 phone],
-    weighingsCount ? ["Кол-во взвешиваний", weighingsCount] : null,
-    carNumber      ? ["Госномер / № авто",  carNumber]      : null,
-    cargoType      ? ["Тип груза",          cargoType]      : null,
-    email          ? ["Email", `<a href="mailto:${email}" style="color:#22c55e">${email}</a>`] : null,
+    queueNumber  ? ["🎫 Номер очереди", `<strong style="color:#16a34a;font-size:16px">${queueNumber}</strong>`] : null,
+    parseInt(qtyWeighing,10) > 0
+      ? ["🚛 Взвешивание", `${qtyWeighing} авт. × 75 = <strong>${totalWeighing} BYN</strong>`] : null,
+    parseInt(qtyMcvtc,10) > 0
+      ? ["📄 Оформление МСВТС", `${qtyMcvtc} авт. × 90 = <strong>${totalMcvtc} BYN</strong>`] : null,
+    totalCost    ? ["💰 ИТОГО к оплате", `<strong style="color:#16a34a;font-size:15px">${totalCost} BYN</strong>`] : null,
+    arrivalDateTime ? ["📅 Дата и время заезда", arrivalDateTime.replace("T", " ")] : null,
+    ["🏢 Компания", company],
+    ["📞 Телефон",  phone],
+    email     ? ["📧 Email", `<a href="mailto:${email}" style="color:#22c55e">${email}</a>`] : null,
+    carNumber ? ["🚗 Госномер / № авто", carNumber] : null,
+    cargoType ? ["📦 Тип груза",         cargoType] : null,
   ]
     .filter(Boolean)
     .map(
@@ -84,7 +94,7 @@ module.exports = async function handler(req, res) {
 
   const { error } = await resend.emails.send({
     from: "Белсотра Лендинг <onboarding@resend.dev>",
-    to:   "amurmen23@gmail.com",
+    to:   "belsotra.vesy@mail.ru",
     subject: "Новая заявка на взвешивание",
     html,
   });
