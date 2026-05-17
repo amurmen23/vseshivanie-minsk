@@ -199,6 +199,7 @@
           <a href="#pricing"    class="text-[11px] font-medium uppercase tracking-wider text-steel-500 transition hover:text-white">Цены</a>
           <a href="#docs"       class="text-[11px] font-medium uppercase tracking-wider text-steel-500 transition hover:text-white">Документы</a>
           <a href="#contacts"   class="text-[11px] font-medium uppercase tracking-wider text-steel-500 transition hover:text-white">Контакты</a>
+          <a href="#route"     class="text-[11px] font-medium uppercase tracking-wider text-steel-500 transition hover:text-white">Маршрут</a>
         </nav>
 
         <!-- ── Live queue widget ── -->
@@ -731,6 +732,130 @@
             </a>
 
           </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ HOW TO GET THERE ════════════════════════════ -->
+      <section
+        id="route"
+        class="scroll-mt-28 border-b border-white/5 bg-navy-950/25 py-20 lg:py-28"
+      >
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+          <!-- Header -->
+          <div class="mb-12 max-w-2xl">
+            <p class="mb-3 eyebrow-label">Навигация</p>
+            <h2 class="font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl">
+              Схема проезда<br class="sm:hidden" /> к станции взвешивания
+            </h2>
+            <p class="mt-4 text-steel-400">
+              Пошаговый визуальный маршрут для водителей — заезд с ул. Промышленная.
+            </p>
+          </div>
+
+          <!-- Route cards grid -->
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+            <!-- Card 1 — Overview map -->
+            <div class="group overflow-hidden rounded-2xl border border-white/8 bg-navy-900/50">
+              <div class="relative overflow-hidden" style="aspect-ratio:4/3">
+                <img
+                  src="landing/images/route-scheme.jpg"
+                  alt="Спутниковая схема заезда"
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                />
+                <div class="absolute inset-0 hidden flex-col items-center justify-center gap-3 bg-navy-900 text-steel-600" style="display:none">
+                  <i data-lucide="map" style="width:40px;height:40px;color:#334155"></i>
+                  <span class="text-xs uppercase tracking-widest">Фото добавится здесь</span>
+                </div>
+                <div class="absolute left-3 top-3 rounded-full border border-accent/30 bg-accent/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-accent">
+                  Схема
+                </div>
+              </div>
+              <div class="p-5">
+                <p class="text-sm font-semibold text-white">Общий вид</p>
+                <p class="mt-1 text-xs leading-relaxed text-steel-500">Общая схема движения по территории</p>
+              </div>
+            </div>
+
+            <!-- Card 2 — Step 1 -->
+            <div class="group overflow-hidden rounded-2xl border border-white/8 bg-navy-900/50">
+              <div class="relative overflow-hidden" style="aspect-ratio:4/3">
+                <img
+                  src="landing/images/route-1.jpg"
+                  alt="Поворот на ул. Промышленная"
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                />
+                <div class="absolute inset-0 hidden flex-col items-center justify-center gap-3 bg-navy-900 text-steel-600" style="display:none">
+                  <i data-lucide="camera-off" style="width:40px;height:40px;color:#334155"></i>
+                  <span class="text-xs uppercase tracking-widest">Фото добавится здесь</span>
+                </div>
+                <div class="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-white shadow-lg">
+                  1
+                </div>
+              </div>
+              <div class="p-5">
+                <p class="text-sm font-semibold text-white">Шаг 1 — Поворот</p>
+                <p class="mt-1 text-xs leading-relaxed text-steel-500">Поворот под эстакаду с улицы Промышленная по указателю</p>
+              </div>
+            </div>
+
+            <!-- Card 3 — Step 2 -->
+            <div class="group overflow-hidden rounded-2xl border border-white/8 bg-navy-900/50">
+              <div class="relative overflow-hidden" style="aspect-ratio:4/3">
+                <img
+                  src="landing/images/route-2.jpg"
+                  alt="Въезд к весовому терминалу"
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                />
+                <div class="absolute inset-0 hidden flex-col items-center justify-center gap-3 bg-navy-900 text-steel-600" style="display:none">
+                  <i data-lucide="camera-off" style="width:40px;height:40px;color:#334155"></i>
+                  <span class="text-xs uppercase tracking-widest">Фото добавится здесь</span>
+                </div>
+                <div class="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-white shadow-lg">
+                  2
+                </div>
+              </div>
+              <div class="p-5">
+                <p class="text-sm font-semibold text-white">Шаг 2 — Въезд</p>
+                <p class="mt-1 text-xs leading-relaxed text-steel-500">Прямой заезд на территорию ООО «БЕЛСОТРА» к весовому терминалу</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- GPS launch buttons -->
+          <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+
+            <!-- Yandex Navigator -->
+            <a
+              href="https://yandex.by/maps/?text=Минск%2C+ул.+Промышленная%2C+4%2F2&z=17"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex min-h-[56px] items-center justify-center gap-3 rounded-xl border border-accent/30 bg-accent/10 px-7 py-4 text-sm font-bold uppercase tracking-wider text-accent transition hover:bg-accent/20 active:scale-95 sm:flex-1 lg:flex-none lg:min-w-[260px]"
+              aria-label="Открыть маршрут в Яндекс.Картах"
+            >
+              <i data-lucide="navigation" style="width:20px;height:20px"></i>
+              Открыть в Яндекс.Навигаторе
+            </a>
+
+            <!-- Google Maps -->
+            <a
+              href="https://maps.google.com/?q=Минск,+ул.+Промышленная,+4/2"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex min-h-[56px] items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 px-7 py-4 text-sm font-bold uppercase tracking-wider text-steel-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white active:scale-95 sm:flex-1 lg:flex-none lg:min-w-[260px]"
+              aria-label="Открыть маршрут в Google Maps"
+            >
+              <i data-lucide="map-pin" style="width:20px;height:20px"></i>
+              Открыть в Google Maps
+            </a>
+
+          </div>
+
         </div>
       </section>
 
