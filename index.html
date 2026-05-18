@@ -84,6 +84,9 @@
         filter: brightness(0.88) contrast(1.1) saturate(1);
         transform: scale(1.04);
       }
+      .gallery-item:focus-visible .photo-cinematic {
+        filter: brightness(0.88) contrast(1.1) saturate(1);
+      }
 
       /* ─── Ticker ─── */
       .ticker-track {
@@ -546,31 +549,43 @@
             <h2 class="font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl">Станция в работе</h2>
           </div>
 
-          <!-- 3 cols grid with mixed aspect ratios -->
-          <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+          <!-- Адаптивная сетка: 2 колонки на телефоне → 3 (md) → 4 (lg); ссылки открывают полный файл -->
+          <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
 
-            <div class="gallery-item col-span-2 overflow-hidden rounded-2xl md:col-span-2" style="aspect-ratio:16/7">
-              <img src="landing/images/vesy1.png" alt="Общий вид весовой площадки" class="photo-cinematic h-full w-full object-cover" />
+            <div class="gallery-cell col-span-2 overflow-hidden rounded-xl md:col-span-2 lg:col-span-2" style="aspect-ratio:16/7">
+              <a class="gallery-item block h-full w-full cursor-zoom-in overflow-hidden rounded-xl outline-none ring-offset-2 ring-offset-navy-950 focus-visible:ring-2 focus-visible:ring-accent" href="landing/images/vesy1.png" target="_blank" rel="noopener noreferrer">
+                <img src="landing/images/vesy1.png" alt="Общий вид весовой площадки" class="photo-cinematic h-full w-full object-cover rounded-xl" />
+              </a>
             </div>
 
-            <div class="gallery-item overflow-hidden rounded-2xl" style="min-height:180px">
-              <img src="landing/images/vesy6.png" alt="Здание и въезд на станцию" class="photo-cinematic w-full object-cover" style="height:100%;min-height:180px" />
+            <div class="gallery-cell overflow-hidden rounded-xl" style="min-height:180px">
+              <a class="gallery-item block h-full min-h-[180px] w-full cursor-zoom-in overflow-hidden rounded-xl outline-none ring-offset-2 ring-offset-navy-950 focus-visible:ring-2 focus-visible:ring-accent" href="landing/images/vesy6.png" target="_blank" rel="noopener noreferrer">
+                <img src="landing/images/vesy6.png" alt="Здание и въезд на станцию" class="photo-cinematic h-full min-h-[180px] w-full object-cover rounded-xl" />
+              </a>
             </div>
 
-            <div class="gallery-item overflow-hidden rounded-2xl" style="aspect-ratio:4/3">
-              <img src="landing/images/vesy2.png" alt="Разметка СТОП на платформе" class="photo-cinematic h-full w-full object-cover" />
+            <div class="gallery-cell overflow-hidden rounded-xl" style="aspect-ratio:4/3">
+              <a class="gallery-item block h-full w-full cursor-zoom-in overflow-hidden rounded-xl outline-none ring-offset-2 ring-offset-navy-950 focus-visible:ring-2 focus-visible:ring-accent" href="landing/images/vesy2.png" target="_blank" rel="noopener noreferrer">
+                <img src="landing/images/vesy2.png" alt="Разметка СТОП на платформе" class="photo-cinematic h-full w-full object-cover rounded-xl" />
+              </a>
             </div>
 
-            <div class="gallery-item overflow-hidden rounded-2xl" style="aspect-ratio:4/3">
-              <img src="landing/images/vesy4.png" alt="Весовой коридор, вид сбоку" class="photo-cinematic h-full w-full object-cover" />
+            <div class="gallery-cell overflow-hidden rounded-xl" style="aspect-ratio:4/3">
+              <a class="gallery-item block h-full w-full cursor-zoom-in overflow-hidden rounded-xl outline-none ring-offset-2 ring-offset-navy-950 focus-visible:ring-2 focus-visible:ring-accent" href="landing/images/vesy4.png" target="_blank" rel="noopener noreferrer">
+                <img src="landing/images/vesy4.png" alt="Весовой коридор, вид сбоку" class="photo-cinematic h-full w-full object-cover rounded-xl" />
+              </a>
             </div>
 
-            <div class="gallery-item overflow-hidden rounded-2xl" style="aspect-ratio:4/3">
-              <img src="landing/images/vesy3.png" alt="Грузовик Rudolf на взвешивании" class="photo-cinematic h-full w-full object-cover" />
+            <div class="gallery-cell overflow-hidden rounded-xl" style="aspect-ratio:4/3">
+              <a class="gallery-item block h-full w-full cursor-zoom-in overflow-hidden rounded-xl outline-none ring-offset-2 ring-offset-navy-950 focus-visible:ring-2 focus-visible:ring-accent" href="landing/images/vesy3.png" target="_blank" rel="noopener noreferrer">
+                <img src="landing/images/vesy3.png" alt="Грузовик Rudolf на взвешивании" class="photo-cinematic h-full w-full object-cover rounded-xl" />
+              </a>
             </div>
 
-            <div class="gallery-item col-span-2 overflow-hidden rounded-2xl" style="aspect-ratio:16/7">
-              <img src="landing/images/vesy5.png" alt="Вид сверху на весовой коридор" class="photo-cinematic h-full w-full object-cover" />
+            <div class="gallery-cell col-span-2 overflow-hidden rounded-xl lg:col-span-2" style="aspect-ratio:16/7">
+              <a class="gallery-item block h-full w-full cursor-zoom-in overflow-hidden rounded-xl outline-none ring-offset-2 ring-offset-navy-950 focus-visible:ring-2 focus-visible:ring-accent" href="landing/images/vesy5.png" target="_blank" rel="noopener noreferrer">
+                <img src="landing/images/vesy5.png" alt="Вид сверху на весовой коридор" class="photo-cinematic h-full w-full object-cover rounded-xl" />
+              </a>
             </div>
 
           </div>
@@ -1306,7 +1321,7 @@
     <!-- Image lightbox modal -->
     <div id="img-lightbox" role="dialog" aria-modal="true" aria-label="Просмотр изображения">
       <button id="lightbox-close" aria-label="Закрыть">&#x2715;</button>
-      <img id="lightbox-img" src="" alt="Схема проезда" />
+      <img id="lightbox-img" src="" alt="Просмотр изображения" />
     </div>
 
     <script src="app.js"></script>
@@ -1332,6 +1347,17 @@
           // Clear src after transition to avoid flicker on re-open
           setTimeout(function () { lightImg.src = ''; }, 320);
         }
+
+        // Click on gallery links (открывает то же окно, переход по ссылке отменяется)
+        document.querySelectorAll('a.gallery-item').forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            e.preventDefault();
+            var img = a.querySelector('img');
+            var src = a.getAttribute('href') || (img && img.getAttribute('src')) || '';
+            var alt = img ? (img.getAttribute('alt') || '') : '';
+            if (src) openLightbox(src, alt);
+          });
+        });
 
         // Click on any route section image
         document.querySelectorAll('#route img').forEach(function (img) {
