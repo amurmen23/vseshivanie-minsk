@@ -113,13 +113,6 @@
       /* ─── PDF card hover ─── */
       .doc-card { transition: border-color .2s, background-color .2s; }
       .doc-card:hover { border-color: rgba(34,197,94,.3); }
-      #docs-accreditation-spoiler[open] .docs-spoiler-chevron {
-        transform: rotate(180deg);
-      }
-      .docs-spoiler-chevron {
-        transition: transform 0.25s ease;
-      }
-
       /* ─── Modal scroll ─── */
       .modal-scroll { max-height: calc(100vh - 7rem); overflow-y: auto; }
       .modal-scroll::-webkit-scrollbar { width: 4px; }
@@ -636,12 +629,13 @@
             <p class="mt-4 text-steel-500">Вся разрешительная документация открыта для проверки.</p>
           </div>
 
-          <!-- Сетка документов: 6 карточек, равная высота -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
+          <!-- Сетка документов + спойлер (общая ширина) -->
+          <div class="mx-auto max-w-7xl px-4">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
             <!-- Аттестат -->
             <a href="./atestat-vesy.pdf" target="_blank" rel="noopener"
-               class="doc-card group flex h-full flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+               class="doc-card group h-full flex flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
               <div class="flex flex-1 items-start gap-4">
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
                   <i data-lucide="file-text" style="width:22px;height:22px;color:#94a3b8"></i>
@@ -658,7 +652,7 @@
 
             <!-- МСВТС образец — highlighted -->
             <a href="./mcvtc-vesy.pdf" target="_blank" rel="noopener"
-               class="doc-card group flex h-full flex-col justify-between gap-4 rounded-2xl border border-accent/25 bg-accent/5 p-6 shadow-[0_0_30px_-10px_rgba(34,197,94,.2)]">
+               class="doc-card group h-full flex flex-col justify-between gap-4 rounded-2xl border border-accent/25 bg-accent/5 p-6 shadow-[0_0_30px_-10px_rgba(34,197,94,.2)]">
               <div class="flex flex-1 items-start gap-4">
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-accent/30 bg-accent/10 transition group-hover:bg-accent/20">
                   <i data-lucide="file-badge-2" style="width:22px;height:22px;color:#22c55e"></i>
@@ -675,7 +669,7 @@
 
             <!-- Прайс -->
             <a href="./price_vesy.pdf" target="_blank" rel="noopener"
-               class="doc-card group flex h-full flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+               class="doc-card group h-full flex flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
               <div class="flex flex-1 items-start gap-4">
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
                   <i data-lucide="receipt" style="width:22px;height:22px;color:#94a3b8"></i>
@@ -692,7 +686,7 @@
 
             <!-- Публичный договор на взвешивание -->
             <a href="./dogvesy.pdf" target="_blank" rel="noopener"
-               class="doc-card group flex h-full flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+               class="doc-card group h-full flex flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
               <div class="flex flex-1 items-start gap-4">
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
                   <i data-lucide="file-signature" style="width:22px;height:22px;color:#94a3b8"></i>
@@ -709,7 +703,7 @@
 
             <!-- Соглашение на выдачу МСВТС -->
             <a href="./vesy_soglashenie.pdf" target="_blank" rel="noopener"
-               class="doc-card group flex h-full flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+               class="doc-card group h-full flex flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
               <div class="flex flex-1 items-start gap-4">
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
                   <i data-lucide="handshake" style="width:22px;height:22px;color:#94a3b8"></i>
@@ -726,7 +720,7 @@
 
             <!-- Квитанция взвешивания -->
             <a href="./kvitancia_vesy.pdf" target="_blank" rel="noopener"
-               class="doc-card group flex h-full flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
+               class="doc-card group h-full flex flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-navy-900/50 p-6">
               <div class="flex flex-1 items-start gap-4">
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition group-hover:border-accent/30 group-hover:bg-accent/10">
                   <i data-lucide="clipboard-list" style="width:22px;height:22px;color:#94a3b8"></i>
@@ -741,29 +735,27 @@
               </p>
             </a>
 
-          </div>
+            </div>
 
-          <!-- Вынесено из сетки: область аккредитации → ./akredit-vesy.pdf -->
-          <details id="docs-accreditation-spoiler" class="doc-card mt-10 max-w-7xl mx-auto rounded-2xl border border-white/8 bg-navy-900/40 px-4 py-4 sm:px-6 open:border-accent/25">
-            <summary class="cursor-pointer list-none font-display text-lg font-semibold uppercase tracking-wide text-white marker:content-none [&::-webkit-details-marker]:hidden">
-              <span class="flex items-center justify-between gap-3">
-                Область аккредитации
-                <i data-lucide="chevron-down" class="docs-spoiler-chevron shrink-0 text-steel-500" style="width:22px;height:22px"></i>
-              </span>
-            </summary>
-            <p class="mt-3 text-sm leading-relaxed text-steel-400">
-              Уполномоченная станция МСВТС — скачайте документ с описанием области аккредитации.
-            </p>
-            <a
-              href="./akredit-vesy.pdf"
-              target="_blank"
-              rel="noopener"
-              class="mt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-accent transition hover:text-accent-hover"
-            >
-              <i data-lucide="download" style="width:14px;height:14px"></i>
-              Скачать PDF
-            </a>
-          </details>
+            <div class="mt-6">
+              <details class="group rounded-xl border border-white/10 bg-navy-900/50 transition-all duration-300">
+                <summary class="flex cursor-pointer list-none select-none items-center justify-between p-5 font-medium text-white focus:outline-none marker:content-none [&::-webkit-details-marker]:hidden">
+                  <span class="tracking-wide">Другие документы</span>
+                  <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </summary>
+                <div class="space-y-3 rounded-b-xl border-t border-white/5 bg-navy-950/40 p-5">
+                  <a href="landing/docs/akredit-vesy.pdf" target="_blank" rel="noopener" class="group/item flex items-center gap-3 py-1 text-slate-300 transition-colors hover:text-emerald-400">
+                    <svg class="h-5 w-5 shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span class="text-sm underline decoration-slate-600 group-hover/item:decoration-emerald-400">Область аккредитации (PDF)</span>
+                  </a>
+                </div>
+              </details>
+            </div>
+          </div>
         </div>
       </section>
 
