@@ -1,8 +1,4 @@
 (function () {
-  var TG_TOKEN   = "8866127264:AAHR2WV8YmJ37yEPZEUQW32fS4Ztx_vJslU";
-  var TG_CHAT_ID = "971858829";
-  var TG_URL     = "https://api.telegram.org/bot" + TG_TOKEN + "/sendMessage";
-
   var modal     = document.getElementById("order-modal");
   var form      = document.getElementById("order-form");
   var messageEl = document.getElementById("form-message");
@@ -267,18 +263,16 @@
   }
 
   function sendToTelegram(d) {
-    return fetch(TG_URL, {
+    return fetch("/api/telegram", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        chat_id:                  TG_CHAT_ID,
-        text:                     buildTelegramText(d),
-        disable_web_page_preview: true,
+        text: buildTelegramText(d),
       }),
     }).then(function (res) {
-      if (!res.ok) return res.text().then(function (t) {
-        throw new Error("Telegram " + res.status + ": " + t.slice(0, 120));
-      });
+      if (!res.ok) {
+        throw new Error("Telegram proxy error " + res.status);
+      }
     });
   }
 
